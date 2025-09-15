@@ -1,0 +1,31 @@
+{
+  "name": "crmpracticas",
+  "version": "1.0.0",
+  "description": "CRM realizado en las prácticas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanielTeresTD/CRMPracticas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DanielTeresTD/CRMPracticas/issues"
+  },
+  "homepage": "https://github.com/DanielTeresTD/CRMPracticas#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.2",
+    "ejs": "^3.1.10",
+    "execsql": "^0.0.3",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.4.0"
+  }
+}
