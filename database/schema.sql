@@ -1,11 +1,11 @@
 CREATE TABLE Client (
     ID INT NOT NULL AUTO_INCREMENT,
     NameClient TEXT NOT NULL,
-    Adress VARCHAR(255),
+    Direction VARCHAR(255),
     PRIMARY KEY(ID)
 );
 
-CREATE TABLE Phone (
+CREATE TABLE ClientPhones (
     PhoneNum VARCHAR(15) NOT NULL,
     ClientID INT,
     PhoneID INT AUTO_INCREMENT,

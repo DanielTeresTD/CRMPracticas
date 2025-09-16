@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import path from "path";
-import * as mysql from "mysql";
+import mysql from "mysql2/promise";
 
 const envPath = path.resolve(__dirname, "../.env");
 
@@ -11,12 +11,12 @@ if (!fs.existsSync(envPath)) {
 
 // load .env file and create database connection
 dotenv.config({ path: envPath });
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+const connection = await mysql.createConnection({
+    host: process.env.DB_HOST!,
+    user: process.env.DB_USER!,
+    password: process.env.DB_PASSWORD!,
+    database: process.env.DB_NAME!,
+    port: parseInt(process.env.DB_PORT!, 10),
 });
 
 // Connect asynchronously into the database
@@ -26,6 +26,7 @@ const connectDB = (): Promise<void> => {
             if (error) {
                 return reject(error);
             }
+            console.log("Conectado correctamente");
             resolve();
         });
     });
@@ -45,4 +46,6 @@ const disconnectDB = (): Promise<void> => {
 
 // Exported connections and functions for /models logic.
 export { connection, connectDB, disconnectDB };
+
+connectDB();
 
