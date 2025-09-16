@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es2022", // Version ts used when compiled
+        "module": "es2022", // Indicate how to import/export modules
+        "outDir": "dist",
+        "strict": true,
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node", // Tell TS how to search imported modules.
+    }
+}
