@@ -1,4 +1,5 @@
 import { Database } from './config/db.js';
+import './config/config.js';
 
 const db = new Database();
 

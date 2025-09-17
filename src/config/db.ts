@@ -1,15 +1,5 @@
-import * as dotenv from "dotenv";
-import * as fs from "fs";
-import path from "path";
 import mysql from "mysql2/promise";
 import.meta.dirname;
-
-const envPath = path.resolve(import.meta.dirname, "../../.env");
-
-if (!fs.existsSync(envPath)) {
-    throw new Error("No se ha encontrado el archivo .env");
-}
-dotenv.config({ path: envPath });
 
 export class Database {
     // Considered as optional value and it´s undefined by default

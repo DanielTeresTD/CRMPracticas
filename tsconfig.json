@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
-        "target": "es2022", // Version ts used when compiled
-        "module": "es2022", // Indicate how to import/export modules
+        "target": "esnext", // Version ts used when compiled
+        "module": "nodenext", // Indicate how to import/export modules
+        "moduleResolution": "nodenext", // Tell TS how to search imported modules.
         "outDir": "dist",
         "strict": true,
         "esModuleInterop": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "moduleResolution": "node", // Tell TS how to search imported modules.
+        "sourceMap": true, // Generate map files to allow debug js files that were originally .ts
     }
 }
