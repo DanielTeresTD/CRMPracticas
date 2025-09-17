@@ -1,14 +1,15 @@
 import { RowDataPacket } from 'mysql2';
-import { db } from '../config/db.js'
+import { connection } from '../config/db.js'
 
-const connection = db.getConnection();
+export class PhoneService {
+    public static async getPhonesFromClient(clientID: number): Promise<RowDataPacket[]> {
+        // Select returns RowDataPacket, due to that it need´s to be specified
+        const [rows] = await connection.execute<RowDataPacket[]>(
+            'SELECT `PhoneNum` from `ClientPhones` WHERE `ClientID` = ?',
+            [clientID]
+        );
 
-export async function getPhonesFromClient(clientID: number): Promise<RowDataPacket[]> {
-    // Select returns RowDataPacket, due to that it need´s to be specified
-    const [rows] = await connection.execute<RowDataPacket[]>(
-        'SELECT `PhoneNum` from `ClientPhones` WHERE `ClientID` = ?',
-        [clientID]
-    );
-
-    return rows;
+        return rows;
+    }
 }
+

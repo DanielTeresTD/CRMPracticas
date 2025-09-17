@@ -2,10 +2,12 @@ import * as dotenv from "dotenv";
 import * as fs from "fs";
 import path from "path";
 
+export const PORT: number = 3000;
+
 const envPath = path.resolve(import.meta.dirname, "../../.env");
 
 if (!fs.existsSync(envPath)) {
-    throw new Error("No se ha encontrado el archivo .env");
+    throw new Error(".env file was not found");
 }
 
 dotenv.config({ path: envPath });
@@ -22,8 +24,7 @@ const requiredEnvVars: Array<string> = [
 const missingVars = requiredEnvVars.filter((varEnvName) => { !process.env[varEnvName] });
 
 if (missingVars.length > 0) {
-    console.error('The following environment variables are missing:');
+    console.error("The following environment variables are missing:");
     missingVars.forEach(varName => console.error(`- ${varName}`));
-    console.error('Please add required environment variables before continuing...');
     process.exit(1);
 }
