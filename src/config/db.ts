@@ -47,3 +47,5 @@ export class Database {
         return this.connection;
     }
 }
+
+export const db = new Database();

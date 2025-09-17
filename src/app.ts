@@ -1,7 +1,5 @@
-import { Database } from './config/db.js';
+import { db } from './config/db.js';
 import './config/config.js';
-
-const db = new Database();
 
 await db.connect();
 

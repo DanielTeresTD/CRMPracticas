@@ -8,6 +8,6 @@
         "esModuleInterop": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "sourceMap": true, // Generate map files to allow debug js files that were originally .ts
+        "sourceMap": true, // Generate map files to allow debug .js files that were originally .ts
     }
 }
