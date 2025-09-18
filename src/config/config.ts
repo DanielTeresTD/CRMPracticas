@@ -4,7 +4,7 @@ import path from "path";
 
 export const PORT: number = 3000;
 
-const envPath = path.resolve(import.meta.dirname, "../../.env");
+const envPath = path.resolve(__dirname, "../../.env");
 
 if (!fs.existsSync(envPath)) {
     throw new Error(".env file was not found");

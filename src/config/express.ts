@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
-import { PORT } from './config.js';
-import IndexRoutes from '../routes/index.routes.js';
+import { PORT } from './config';
+import IndexRoutes from '../routes/index.routes';
 
 export class ExpressServer {
     private readonly port: number;

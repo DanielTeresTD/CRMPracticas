@@ -1,6 +1,6 @@
 import { Router } from "express";
-import ClientRoutes from "./client.routes.js";
-import PhoneRoutes from "./phone.routes.js";
+import ClientRoutes from "./client.routes";
+import PhoneRoutes from "./phone.routes";
 
 const router = Router();
 

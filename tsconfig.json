@@ -1,8 +1,7 @@
 {
     "compilerOptions": {
-        "target": "esnext", // Version ts used when compiled
-        "module": "esnext", // Indicate how to import/export modules
-        "moduleResolution": "node", // Tell TS how to search imported modules.
+        "target": "es2016", // Version ts used when compiled
+        "module": "commonjs",
         "outDir": "dist",
         "strict": true,
         "esModuleInterop": true,

@@ -1,6 +1,6 @@
-import './config/config.js';
-import connection from './config/db.js';
-import { ExpressServer } from './config/express.js';
+import './config/config';
+import connection from './config/db';
+import { ExpressServer } from './config/express';
 
 // Check connection to database
 const server = new ExpressServer();

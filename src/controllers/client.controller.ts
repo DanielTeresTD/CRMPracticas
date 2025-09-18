@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { GenResponse } from './genResponse.js';
-import router from '../routes/client.routes.js';
-import { ClientService } from '../service/client.service.js';
+import { GenResponse } from './genResponse';
+import { ClientService } from '../service/client.service';
 
 export class ClientController {
     public static async getClients(req: Request, res: Response) {
