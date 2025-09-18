@@ -1,5 +1,5 @@
 import { RowDataPacket } from 'mysql2';
-import { connection } from '../config/db.js'
+import connection from '../config/db.js'
 
 
 export class ClientService {

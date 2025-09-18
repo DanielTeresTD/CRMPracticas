@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "esnext", // Version ts used when compiled
-        "module": "nodenext", // Indicate how to import/export modules
-        "moduleResolution": "nodenext", // Tell TS how to search imported modules.
+        "module": "esnext", // Indicate how to import/export modules
+        "moduleResolution": "node", // Tell TS how to search imported modules.
         "outDir": "dist",
         "strict": true,
         "esModuleInterop": true,

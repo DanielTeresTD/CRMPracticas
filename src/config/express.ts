@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import { PORT } from './config.js';
-import ClientRoutes from '../routes/clientRoutes.routes.js';
+import IndexRoutes from '../routes/index.routes.js';
 
 export class ExpressServer {
     private readonly port: number;
@@ -13,7 +13,8 @@ export class ExpressServer {
         this.app = express();
 
         this.app.use(express.json());
-        this.app.use('/clientes', ClientRoutes);
+        this.app.use('/api', IndexRoutes);
+
 
         this.app.get('/', (req: express.Request, res: express.Response) => {
             res.send("Página principal");
@@ -32,9 +33,5 @@ export class ExpressServer {
         } else {
             console.log("Server was not started before");
         }
-    }
-
-    public getPort(): number {
-        return this.port;
     }
 }

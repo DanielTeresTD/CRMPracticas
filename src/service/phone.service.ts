@@ -1,5 +1,5 @@
 import { RowDataPacket } from 'mysql2';
-import { connection } from '../config/db.js'
+import connection from '../config/db.js'
 
 export class PhoneService {
     public static async getPhonesFromClient(clientID: number): Promise<RowDataPacket[]> {
