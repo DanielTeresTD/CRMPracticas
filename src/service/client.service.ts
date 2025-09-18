@@ -1,5 +1,5 @@
 import { RowDataPacket } from 'mysql2';
-import connection from '../config/db'
+import connection from '../../.vscode/db'
 
 
 export class ClientService {

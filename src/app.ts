@@ -1,12 +1,13 @@
 import './config/config';
-import connection from './config/db';
+import 'reflect-metadata';
+import { initOrm } from './config/typeorm';
 import { ExpressServer } from './config/express';
 
 // Check connection to database
 const server = new ExpressServer();
 
 server.start(async () => {
-    await connection.getConnection();
+    await initOrm();
 });
 
 process.on('SIGINT', async () => {
