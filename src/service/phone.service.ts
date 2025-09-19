@@ -1,15 +1,19 @@
-import { RowDataPacket } from 'mysql2';
-import connection from '../../.vscode/db'
+import { DB } from '../config/typeorm'
+import { ClientPhones } from '../entities/phone.entity';
 
 export class PhoneService {
-    public static async getPhonesFromClient(clientID: number): Promise<RowDataPacket[]> {
+    public static async getPhonesFromClient(clientIDParam: number): Promise<string[]> {
         // Select returns RowDataPacket, due to that it need´s to be specified
-        const [rows] = await connection.execute<RowDataPacket[]>(
-            'SELECT `PhoneNum` from `ClientPhones` WHERE `ClientID` = ?',
-            [clientID]
-        );
+        const clientPhonesRepository = DB.getRepository(ClientPhones);
+        const phoneClients = await clientPhonesRepository.find({
+            where: {
+                client: {
+                    id: clientIDParam
+                }
+            }
+        })
 
-        return rows;
+        return phoneClients.map(phone => phone.phoneNumber);
     }
 }
 
