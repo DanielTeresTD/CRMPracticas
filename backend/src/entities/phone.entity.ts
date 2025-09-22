@@ -1,15 +1,16 @@
 
 import {
-    Column, Entity, PrimaryColumn,
-    PrimaryGeneratedColumn, CreateDateColumn,
-    ManyToMany,
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
     ManyToOne,
     JoinColumn
 } from "typeorm";
 
 import { Client } from "./client.entity";
 
-@Entity()
+@Entity({ name: "client_phones" })
 export class ClientPhones {
     @Column({
         name: "PhoneNum",

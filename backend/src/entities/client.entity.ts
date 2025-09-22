@@ -5,7 +5,7 @@ import {
 
 import { ClientPhones } from "./phone.entity";
 
-@Entity()
+@Entity({ name: "client" })
 export class Client {
     @PrimaryGeneratedColumn({ name: "ID" })
     id!: number;

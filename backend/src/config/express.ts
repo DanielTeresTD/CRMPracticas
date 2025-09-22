@@ -2,17 +2,23 @@ import express from 'express';
 import http from 'http';
 import { PORT } from './config';
 import IndexRoutes from '../routes/index.routes';
+import cors from 'cors';
 
 export class ExpressServer {
     private readonly port: number;
     private app: express.Application;
     private server?: http.Server;
 
+    private readonly corsOptions = {
+        origin: "http://localhost:4200"
+    }
+
     constructor(port?: number) {
         this.port = port ?? PORT;
         this.app = express();
 
         this.app.use(express.json());
+        this.app.use(cors(this.corsOptions));
         this.app.use('/api', IndexRoutes);
 
 
