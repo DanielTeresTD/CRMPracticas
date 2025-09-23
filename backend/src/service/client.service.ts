@@ -1,14 +1,14 @@
 import { DB } from '../config/typeorm'
 import { Client } from '../entities/client.entity';
 
-
 export class ClientService {
-    public static async getClients(): Promise<string[]> {
+    public static async getClients(): Promise<Client[]> {
         const clientRepository = DB.getRepository(Client);
-        const clients = await clientRepository.find({
-            select: ["name"]
-        });
+        return await clientRepository.find();
+    }
 
-        return clients.map((client) => client.name);
+    public static async getClientByID(clientID: number): Promise<Client | null> {
+        const clientRepository = DB.getRepository(Client);
+        return await clientRepository.findOneBy({ id: clientID });
     }
 }

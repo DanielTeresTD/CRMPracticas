@@ -16,4 +16,19 @@ export class ClientController {
 
         res.json(resp);
     }
+
+    public static async getClientByID(req: Request, res: Response) {
+        let resp = new GenResponse();
+        const clientID: number = Number(req.params.id);
+
+        try {
+            resp.data = await ClientService.getClientByID(clientID);
+            resp.code = 200;
+        } catch (error) {
+            resp.msg = error as string;
+            resp.code = 500;
+        }
+
+        res.json(resp);
+    }
 }

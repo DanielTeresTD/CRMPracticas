@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
+import { ClientService } from '../../services/client.service';
 import { ClientTable } from '../../components/client-table/client-table';
+import { ClientData } from '../../interfaces/clients';
 
 @Component({
   selector: 'app-home',
@@ -10,11 +11,11 @@ import { ClientTable } from '../../components/client-table/client-table';
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class Home {
-  public clients: any[] = [];
+export class Home implements OnInit {
+  public clients: ClientData[] = [];
 
-  constructor(private apiService: ApiService) { }
-
+  constructor(private apiService: ClientService) { }
+  // Execute this function when componente is loaded or reloaded
   ngOnInit(): void {
     this.getClients();
   }
