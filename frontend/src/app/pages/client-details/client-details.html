@@ -1,0 +1,28 @@
+<div class="client-details-container">
+    @if (client; as c) {
+    <h2>Detalles del Cliente</h2>
+
+    <div class="client-info">
+        <p><strong>Nombre:</strong> {{ c.name }}</p>
+        <p><strong>Dirección:</strong> {{ c.address }}</p>
+    </div>
+    }
+
+    @if (clientPhones.length > 0) {
+    <h3>Teléfonos</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Número de Teléfono</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (phone of clientPhones; track phone) {
+            <tr>
+                <td>{{ phone }}</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</div>
