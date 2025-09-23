@@ -1,0 +1,14 @@
+<table>
+    <thead>
+        <tr>
+            <th>Nombre del Cliente</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (client of clients; track client) {
+        <tr>
+            <td>{{ client }}</td>
+        </tr>
+        }
+    </tbody>
+</table>

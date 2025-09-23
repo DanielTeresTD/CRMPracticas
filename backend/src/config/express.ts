@@ -10,7 +10,7 @@ export class ExpressServer {
     private server?: http.Server;
 
     private readonly corsOptions = {
-        origin: "http://localhost:4200"
+        origin: ["http://localhost:4200", "http://127.0.0.1:4200"]
     }
 
     constructor(port?: number) {

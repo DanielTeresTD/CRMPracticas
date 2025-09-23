@@ -8,11 +8,8 @@ import { Observable } from 'rxjs'; // Handle async data streams
 @Injectable({ providedIn: 'root' })
 export class ApiService {
     private readonly apiURL = enviroment.apiURL;
-    private http: HttpClient;
 
-    constructor(http: HttpClient) {
-        this.http = http;
-    }
+    constructor(private http: HttpClient) { }
 
     public getClients(): Observable<GenResponse> {
         return this.http.get(`${this.apiURL}/clientes`);
