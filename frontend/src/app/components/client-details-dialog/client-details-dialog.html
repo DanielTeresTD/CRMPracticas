@@ -1,0 +1,37 @@
+<p-dialog [(visible)]="visible" [modal]="true"
+    [style]="{ width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
+    [contentStyle]="{ padding: '2rem' }" [dismissableMask]="true" [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+    [baseZIndex]="10000" (onHide)="onClose()">
+
+    <ng-template #header>
+        <div class="text-center w-full font-bold text-lg tracking-wide text-surface-700">
+            Detalles del Cliente
+        </div>
+    </ng-template>
+
+    @if (client; as c) {
+    <h2 class="text-xl font-bold mb-4">{{ c.name }}</h2>
+
+    <div class="mb-4">
+        <span class="font-semibold text-sm text-surface-700">Dirección:</span>
+        <p class="m-0 text-base">{{ c.address }}</p>
+    </div>
+
+    @if (clientPhones.length > 0) {
+    <div class="mb-4">
+        <span class="font-semibold text-sm text-surface-700">Teléfonos:</span>
+        <ul class="list-disc list-inside pl-4 text-base mt-2">
+            @for (phone of clientPhones; track phone) {
+            <li>{{ phone }}</li>
+            }
+        </ul>
+    </div>
+    }
+    }
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cerrar" [text]="true" severity="secondary" (click)="visible = false" />
+        </div>
+    </ng-template>
+</p-dialog>
