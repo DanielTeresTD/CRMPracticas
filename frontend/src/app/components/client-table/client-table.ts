@@ -1,14 +1,17 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClientData } from '../../interfaces/clients';
 import { RouterModule } from '@angular/router';
+import { ClientService } from '../../services/client.service';
+import { PhoneService } from '../../services/phone.service';
 
-import { ClientDetailsDialog } from '../client-details-dialog/client-details-dialog';
+import { ClientForm } from '../client-form/client-form';
 
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 
 interface Column {
   field: string;
@@ -19,35 +22,92 @@ interface Column {
   selector: 'app-client-table',
   imports: [
     CommonModule, RouterModule, TableModule, TagModule,
-    RatingModule, ButtonModule, ClientDetailsDialog
+    RatingModule, ButtonModule, ClientForm, DialogModule
   ],
   templateUrl: './client-table.html',
   styleUrl: './client-table.scss'
 })
-export class ClientTable {
-  @Input() clients: ClientData[] = [];
-  // Enviar el evento a home para que se encargue home de añadir a la gente
-  @Output() addClientRequest = new EventEmitter<void>();
+export class ClientTable implements OnInit {
+  clients: ClientData[] = [];
+  clientPhones: string[] = [];
+
   public cols: Column[] = [
     { field: 'name', header: 'Name' },
     { field: 'details', header: 'Details' }
   ];
 
+  public showDialog: boolean = false;
   public selectedClient?: ClientData;
-  public addClient: boolean = false;
+  public formMode: 'view' | 'edit' | 'add' = 'view';
 
+  constructor(
+    private clientService: ClientService,
+    private phoneService: PhoneService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
+    this.getClients();
+  }
+
+  public getClients(): void {
+    this.clientService.getClients().subscribe((data) => {
+      this.clients = data.data;
+      this.cdr.detectChanges();
+    });
+  }
+
+  public getPhonesFromClient(clientID: number): void {
+    this.phoneService.getPhonesFromClient(clientID).subscribe((data) => {
+      this.clientPhones = data.data;
+    })
+  }
 
   public showClientDialog(client: ClientData): void {
     this.selectedClient = client;
+    this.formMode = 'view';
+    this.clientPhones = [];
+    if (client.id) {
+      this.getPhonesFromClient(client.id);
+    }
+    this.showDialog = true;
+  }
+
+  public showEditClientDialog(client: ClientData): void {
+    this.selectedClient = client;
+    this.formMode = 'edit';
+    this.clientPhones = [];
+    if (client.id) {
+      this.getPhonesFromClient(client.id);
+    }
+    this.showDialog = true;
+  }
+
+  public showAddClientDialog(): void {
+    this.selectedClient = {} as ClientData;
+    this.formMode = 'add';
+    this.clientPhones = [];
+    this.showDialog = true;
+  }
+
+  public onFormSubmitted(formData: ClientData): void {
+    // Aquí podrías añadir los teléfonos a formData si quieres
+    if (this.formMode === 'add') {
+      this.clientService.addClient(formData).subscribe(() => {
+        this.getClients();
+        this.closeDialog();
+      });
+    } else if (this.formMode === 'edit') {
+      this.clientService.updateClient(formData).subscribe(() => {
+        this.getClients();
+        this.closeDialog();
+      });
+    }
   }
 
   public closeDialog(): void {
     this.selectedClient = undefined;
+    this.clientPhones = [];
+    this.showDialog = false;
   }
-
-  public showAddClientDialog(): void {
-    this.addClientRequest.emit();
-  }
-
-
 }

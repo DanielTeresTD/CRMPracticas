@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ClientDetailsDialog } from './client-details-dialog';
+import { ClientDetailsDialog } from './client-form';
 
 describe('ClientDetailsDialog', () => {
   let component: ClientDetailsDialog;
@@ -10,7 +10,7 @@ describe('ClientDetailsDialog', () => {
     await TestBed.configureTestingModule({
       imports: [ClientDetailsDialog]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(ClientDetailsDialog);
     component = fixture.componentInstance;

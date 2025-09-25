@@ -1,1 +1,9 @@
 Para los modales, buscar dialog en primeng.
+
+Para hacer un componente reutilizable de verdad.
+ - En client-table.html en los if de abajo envolverlo en un dialog.
+    - en client-details-dialog dejar un formulario y quitar el modal de ahí. El formulario debe 
+      de ser dinámico en cuanto a los campos necesarios.
+    
+- En client-details-dialog, mover la llamada de obtener los teléfonos a client-table.
+- 

@@ -4,11 +4,8 @@
     </header>
 
     <main>
-        <app-client-table [clients]="clients" (addClientRequest)="openAddClientDialog()"></app-client-table>
+        <app-client-table></app-client-table>
 
-        @if (showAddDialog) {
-        <app-client-details-dialog [visible]="true" [onClose]="closeDialog.bind(this)"></app-client-details-dialog>
-        }
     </main>
 
     <footer>
