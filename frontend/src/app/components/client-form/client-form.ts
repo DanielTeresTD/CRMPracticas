@@ -1,26 +1,32 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import {
+  Component, EventEmitter, Input, OnInit,
+  Output, OnChanges, SimpleChanges
+} from '@angular/core';
+import {
+  ReactiveFormsModule, FormBuilder, FormGroup,
+  Validators, FormControl, FormArray
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ClientData } from '../../interfaces/clients';
-
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-client-form',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ButtonModule],
   templateUrl: './client-form.html',
   styleUrl: './client-form.scss'
 })
-export class ClientForm implements OnInit {
+export class ClientForm implements OnInit, OnChanges {
   @Input() client!: ClientData;
   @Input() clientPhones: string[] = [];
-  @Input() visible: boolean = false;
   @Input() mode?: 'view' | 'edit' | 'add';
   @Input() onClose!: () => void;
   @Output() formSubmitted = new EventEmitter<any>();
 
   public clientForm!: FormGroup;
   public fieldKeys: string[] = [];
+  public formControl = FormControl;
 
   constructor(private fb: FormBuilder) { }
 
@@ -28,21 +34,50 @@ export class ClientForm implements OnInit {
     this.buildForm();
   }
 
-  private buildForm(): void {
-    const controls: { [key: string]: FormControl } = {};
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['client'] && this.client) {
+      this.buildForm();
+    }
+  }
 
-    // Usamos las claves del cliente como nombres de campos
-    this.fieldKeys = Object.keys(this.client ?? {});
+  private buildForm(): void {
+    const controls: { [key: string]: FormControl | FormArray } = {};
+    this.fieldKeys = Object.keys(this.client ?? {}).filter(key => key !== 'phoneNums');
 
     this.fieldKeys.forEach((key) => {
       const value = this.client[key as keyof ClientData] ?? '';
       controls[key] = new FormControl(
         { value, disabled: this.mode === 'view' },
-        Validators.required // Puedes personalizar esto después
+        Validators.required
       );
     });
 
+    // Teléfonos (edit/add)
+    if (this.mode !== 'view') {
+      const phoneControls = this.clientPhones?.map(phone =>
+        new FormControl(phone, Validators.required)
+      ) ?? [];
+
+      if (phoneControls.length === 0) {
+        phoneControls.push(new FormControl('', Validators.required));
+      }
+
+      controls['phoneNums'] = this.fb.array(phoneControls);
+    }
+
     this.clientForm = this.fb.group(controls);
+  }
+
+  get phoneNums(): FormArray {
+    return this.clientForm.get('phoneNums') as FormArray;
+  }
+
+  addPhone(): void {
+    this.phoneNums.push(new FormControl('', Validators.required));
+  }
+
+  removePhone(index: number): void {
+    this.phoneNums.removeAt(index);
   }
 
   onSubmit(): void {
@@ -51,17 +86,25 @@ export class ClientForm implements OnInit {
       return;
     }
 
-    const data = this.clientForm.getRawValue();
-    console.log('Formulario enviado:', data);
+    const formData = this.clientForm.getRawValue();
 
-    this.formSubmitted.emit(data);
+    // Adaptar formato de teléfonos para el backend
+    if (formData.phoneNums) {
+      formData.phoneNums = formData.phoneNums.map((phone: string) => ({
+        phoneNumber: phone
+      }));
+    }
 
-    // Aquí puedes emitir o guardar los datos
+    this.formSubmitted.emit(formData);
     this.onClose?.();
   }
 
   getFieldType(key: string): string {
-    const value = (this.client as Record<string, any>)[key];
+    const value = this.clientForm?.get(key)?.value;
     return typeof value === 'number' ? 'number' : 'text';
+  }
+
+  public getPhoneControl(index: number): FormControl {
+    return this.phoneNums.at(index) as FormControl;
   }
 }

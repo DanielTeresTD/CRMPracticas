@@ -7,4 +7,10 @@ const router = Router()
 router.get('/', ClientController.getClients);
 router.get('/:id', ClientController.getClientByID);
 
+router.post('/', ClientController.addClient);
+
+router.put('/:id', ClientController.updateClient);
+
+router.delete('/:id', ClientController.deleteClient);
+
 export default router;

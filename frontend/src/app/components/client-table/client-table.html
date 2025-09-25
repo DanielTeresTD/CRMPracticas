@@ -47,18 +47,35 @@
         [breakpoints]="{ '960px': '90vw', '640px': '95vw' }" [baseZIndex]="10000" (onHide)="closeDialog()">
 
         <ng-template #header>
-            <div class="text-center w-full font-bold text-lg tracking-wide text-surface-700">
-                Detalles del Cliente
+            <div class="flex justify-between items-center w-full font-bold text-lg tracking-wide text-surface-700">
+                <span>Detalles del Cliente</span>
+
+                @if (formMode === 'view') {
+                <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
+                    style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
+                }
             </div>
         </ng-template>
 
-        @if (selectedClient) {
-        <app-client-details-dialog [client]="selectedClient" [visible]="true" [mode]="'view'"
-            [onClose]="closeDialog.bind(this)"></app-client-details-dialog>
+        @switch (formMode) {
+        @case ('view') {
+        <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="clientPhones"
+            [onClose]="closeDialog.bind(this)"></app-client-form>
         }
 
-        @if (addClient) {
-        <app-client-details-dialog [visible]="true" [onClose]="closeDialog.bind(this)"></app-client-details-dialog>
+        @case ('add') {
+        <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="[]"
+            [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
+        </app-client-form>
+        }
+
+
+        @case ('edit') {
+        <app-client-form [client]="selectedClient!" [clientPhones]="clientPhones" [mode]="formMode"
+            [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
+        </app-client-form>
+        }
+
         }
 
         <ng-template #footer>

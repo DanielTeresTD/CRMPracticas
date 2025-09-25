@@ -14,6 +14,8 @@ export class Client {
     @Column("text", { name: "Direction", nullable: true })
     address!: string;
 
-    @OneToMany(() => ClientPhones, (clientPhone) => clientPhone.client)
+    @OneToMany(() => ClientPhones, (clientPhone) => clientPhone.client, {
+        cascade: true
+    })
     phoneNums!: ClientPhones[];
 }

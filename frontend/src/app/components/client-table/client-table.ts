@@ -18,6 +18,12 @@ interface Column {
   header: string;
 }
 
+const EMPTY_CLIENT: ClientData = {
+  name: '',
+  address: '',
+  phoneNums: []
+};
+
 @Component({
   selector: 'app-client-table',
   imports: [
@@ -73,18 +79,12 @@ export class ClientTable implements OnInit {
     this.showDialog = true;
   }
 
-  public showEditClientDialog(client: ClientData): void {
-    this.selectedClient = client;
+  public showEditClientDialog(): void {
     this.formMode = 'edit';
-    this.clientPhones = [];
-    if (client.id) {
-      this.getPhonesFromClient(client.id);
-    }
-    this.showDialog = true;
   }
 
   public showAddClientDialog(): void {
-    this.selectedClient = {} as ClientData;
+    this.selectedClient = { ...EMPTY_CLIENT };
     this.formMode = 'add';
     this.clientPhones = [];
     this.showDialog = true;
@@ -98,12 +98,13 @@ export class ClientTable implements OnInit {
         this.closeDialog();
       });
     } else if (this.formMode === 'edit') {
-      this.clientService.updateClient(formData).subscribe(() => {
+      this.clientService.updateClient(Number(this.selectedClient?.id), formData).subscribe(() => {
         this.getClients();
         this.closeDialog();
       });
     }
   }
+
 
   public closeDialog(): void {
     this.selectedClient = undefined;
