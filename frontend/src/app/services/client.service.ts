@@ -27,4 +27,8 @@ export class ClientService {
     public updateClient(clientID: number, newClient: ClientData): Observable<GenResponse> {
         return this.http.put<GenResponse>(`${this.apiURL}/clientes/${clientID}`, newClient);
     }
+
+    public removeClient(clientID: number): Observable<GenResponse> {
+        return this.http.delete<GenResponse>(`${this.apiURL}/clientes/${clientID}`);
+    }
 }

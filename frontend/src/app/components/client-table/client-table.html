@@ -51,8 +51,13 @@
                 <span>Detalles del Cliente</span>
 
                 @if (formMode === 'view') {
-                <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
-                    style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
+                <div class="flex gap-2">
+                    <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
+                        style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
+
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text"
+                        style="color: red;" (click)="removeClient()" aria-label="Eliminar cliente"></button>
+                </div>
                 }
             </div>
         </ng-template>

@@ -63,6 +63,13 @@ export class ClientTable implements OnInit {
     });
   }
 
+  public removeClient(): void {
+    this.clientService.removeClient(Number(this.selectedClient!.id)).subscribe((data) => {
+      this.getClients();
+    });
+    this.showDialog = false;
+  }
+
   public getPhonesFromClient(clientID: number): void {
     this.phoneService.getPhonesFromClient(clientID).subscribe((data) => {
       this.clientPhones = data.data;
@@ -105,7 +112,6 @@ export class ClientTable implements OnInit {
       });
     }
   }
-
 
   public closeDialog(): void {
     this.selectedClient = undefined;
