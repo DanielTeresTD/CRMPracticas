@@ -66,6 +66,7 @@ export class ClientTable implements OnInit {
   public getPhonesFromClient(clientID: number): void {
     this.phoneService.getPhonesFromClient(clientID).subscribe((data) => {
       this.clientPhones = data.data;
+      this.cdr.detectChanges();
     })
   }
 
