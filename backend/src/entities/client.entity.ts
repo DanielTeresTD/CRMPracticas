@@ -14,6 +14,7 @@ export class Client {
     @Column("text", { name: "Direction", nullable: true })
     address!: string;
 
+    // cascade --> Tells orm if new Client is saved, 
     @OneToMany(() => ClientPhones, (clientPhone) => clientPhone.client, {
         cascade: true
     })

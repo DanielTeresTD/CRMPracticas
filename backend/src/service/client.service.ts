@@ -12,27 +12,25 @@ export class ClientService {
         return await clientRepository.findOneBy({ id: clientID });
     }
 
-    public static async addClient(newClient: Client): Promise<Client | null> {
+    public static async addClient(newClient: Client): Promise<void> {
         const clientRepository = DB.getRepository(Client);
-
-        // Crear entidad cliente para que TypeORM maneje bien relaciones
+        // Create the entity to add new client
         const client = clientRepository.create(newClient);
-
-        // Asignar relación de teléfono a la entidad creada, no al objeto plano
+        // Bind each phone to the external relation needed
         client.phoneNums?.forEach(phone => {
             phone.client = client;
         });
 
-        return await clientRepository.save(client);
+        // Needed save instead of insert because insert does not trigger 'cascade' parameter
+        await clientRepository.save(client);
     }
 
-    public static async updateClient(clientID: number, newClientData: Partial<Client>): Promise<Client | null> {
+    public static async updateClient(clientID: number, newClientData: Client): Promise<Client | null> {
         const clientRepository = DB.getRepository(Client);
-
         const existingClient = await clientRepository.findOneBy({ id: clientID });
 
         if (!existingClient) {
-            throw new Error('Cliente no encontrado');
+            throw new Error('Cliente no found');
         }
 
         clientRepository.merge(existingClient, newClientData);
