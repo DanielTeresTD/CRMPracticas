@@ -1,1 +1,1 @@
-Esto es una prueba
+cors (Angular para aceptar peticiones cruzadas)

@@ -1,0 +1,94 @@
+<div class="table">
+    <p-table [columns]="cols" [value]="clients" stripedRows
+        [tableStyle]="{ 'max-width': '900px', 'margin': '0 auto' }">>
+
+        <ng-template #header let-columns>
+            <tr>
+                @for (col of columns; track col.field) {
+                <th [style.text-align]="col.field === 'details' ? 'center' : 'left'">
+                    {{ col.header }}
+                </th>
+                }
+            </tr>
+        </ng-template>
+
+        <ng-template #body let-rowData let-columns="columns">
+            <tr>
+                @for (col of columns; track col.field) {
+                <td [style.text-align]="col.field === 'details' ? 'center' : 'left'">
+                    @if (col.field === 'name') {
+                    {{ rowData.name }}
+                    } @else if (col.field === 'details') {
+                    <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="showClientDialog(rowData)" style="color: seagreen">
+                    </button>
+                    }
+                </td>
+                }
+            </tr>
+        </ng-template>
+
+        <ng-template #footer>
+            <tr>
+                <td [attr.colspan]="cols.length" style="text-align: center;">
+                    <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-button-text"
+                        style="color: seagreen; font-size: 1.5rem;" (click)="showAddClientDialog()"></button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">In total there are {{ clients ? clients.length : 0 }} clients.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog [(visible)]="showDialog" [modal]="true"
+        [style]="{ width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
+        [contentStyle]="{ padding: '2rem' }" [dismissableMask]="true"
+        [breakpoints]="{ '960px': '90vw', '640px': '95vw' }" [baseZIndex]="10000" (onHide)="closeDialog()">
+
+        <ng-template #header>
+            <div class="flex justify-between items-center w-full font-bold text-lg tracking-wide text-surface-700">
+                <span>Detalles del Cliente</span>
+
+                @if (formMode === 'view') {
+                <div class="flex gap-2">
+                    <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
+                        style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
+
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text"
+                        style="color: red;" (click)="removeClient()" aria-label="Eliminar cliente"></button>
+                </div>
+                }
+            </div>
+        </ng-template>
+
+        @switch (formMode) {
+        @case ('view') {
+        <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="clientPhones"
+            [onClose]="closeDialog.bind(this)"></app-client-form>
+        }
+
+        @case ('add') {
+        <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="[]"
+            [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
+        </app-client-form>
+        }
+
+
+        @case ('edit') {
+        <app-client-form [client]="selectedClient!" [clientPhones]="clientPhones" [mode]="formMode"
+            [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
+        </app-client-form>
+        }
+
+        }
+
+        <ng-template #footer>
+            <div class="flex justify-end gap-2">
+                <p-button label="Cerrar" [text]="true" severity="secondary" (click)="showDialog = false" />
+            </div>
+        </ng-template>
+    </p-dialog>
+
+
+</div>
