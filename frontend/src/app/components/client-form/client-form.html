@@ -1,13 +1,21 @@
+<!-- FormGroup directive binds to the FormGroup created in the .ts -->
 <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
 
     @for (key of fieldKeys; track key) {
     <div class="flex flex-col">
         <label class="text-sm font-semibold capitalize mb-1">{{ key }}</label>
+        <!--
+        Generate an input for each field in the form.  
+        directive FormControlName correspond to key name in the FormGroup or FormArray, to connect with it. 
+        Use readonly if field is ID or in view mode. 
+        Type directive used to alternate between number or text value. 
+         -->
         <input [formControlName]="key" class="border p-2 rounded" [readonly]="key === 'id' ? true : mode === 'view'"
             [type]="getFieldType(key)" />
     </div>
     }
 
+    <!-- View mode to show phones as a list -->
     @if (clientPhones && clientPhones.length > 0 && mode === 'view') {
     <div class="flex flex-col">
         <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
@@ -19,12 +27,14 @@
     </div>
     }
 
+    <!-- Edit or add phones -->
     @if (mode !== 'view') {
     <div class="flex flex-col">
         <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
 
         @for (phone of phoneNums.controls; track $index) {
         <div class="flex items-center gap-2 mb-2">
+            <!-- Get each phone of FormArray -->
             <input type="text" [formControl]="getPhoneControl($index)" class="border p-2 rounded w-full" />
             <button type="button" (click)="removePhone($index)" class="text-red-600 text-sm">
                 Eliminar
@@ -33,12 +43,13 @@
         }
 
 
-
+        <!-- Create new FormControl and add it to PhoneArray, then the for loop will show this new phone-->
         <button type="button" (click)="addPhone()" class="text-blue-600 text-sm mt-1">+ Añadir teléfono</button>
     </div>
 
+    <!-- Submit the form, this will trigger onSubmit() function -->
     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded mt-4">
-        {{ mode === 'edit' ? 'Guardar cambios' : 'Agregar cliente' }}
+        {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir cliente' }}
     </button>
     }
 

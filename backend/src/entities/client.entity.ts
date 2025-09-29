@@ -1,6 +1,6 @@
 import {
-    Entity, Column, PrimaryColumn, PrimaryGeneratedColumn,
-    OneToMany, JoinColumn
+    Entity, Column, PrimaryGeneratedColumn,
+    OneToMany,
 } from "typeorm";
 
 import { ClientPhones } from "./phone.entity";
@@ -14,7 +14,8 @@ export class Client {
     @Column("text", { name: "Direction", nullable: true })
     address!: string;
 
-    // cascade --> Tells orm if new Client is saved, 
+    // cascade --> Tells orm if there are Phones on Client Object, and Client is saved,
+    //             the new Phones should also be saved 
     @OneToMany(() => ClientPhones, (clientPhone) => clientPhone.client, {
         cascade: true
     })

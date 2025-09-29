@@ -92,14 +92,16 @@ export class ClientTable implements OnInit {
   }
 
   public showAddClientDialog(): void {
+    // Used to put dynamicly each field in the form. 
+    // ... is used to create a new object with the same properties of cte EMPTY_CLIENT
     this.selectedClient = { ...EMPTY_CLIENT };
     this.formMode = 'add';
     this.clientPhones = [];
     this.showDialog = true;
   }
 
+  // Retrieve form object from client-form componente and call add or edit (depends on the mode it is)
   public onFormSubmitted(formData: ClientData): void {
-    // Aquí podrías añadir los teléfonos a formData si quieres
     if (this.formMode === 'add') {
       this.clientService.addClient(formData).subscribe(() => {
         this.getClients();
