@@ -49,7 +49,7 @@ export class ClientForm implements OnInit, OnChanges {
     const controls: { [key: string]: FormControl | FormArray } = {};
     // this.client ?? {} --> if client is null, create an empty object.
     // Get all keys names (fields) of client object except phoneNums field
-    this.fieldKeys = Object.keys(this.client ?? {}).filter(key => key !== 'phoneNums');
+    this.fieldKeys = Object.keys(this.client ?? {}).filter(key => key !== 'phoneNums' && key !== 'id');
 
     this.fieldKeys.forEach((key) => {
       // Get value of key field and tell TS 'key' is from ClientData interface

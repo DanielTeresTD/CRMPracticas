@@ -1,6 +1,6 @@
 <div class="table">
-    <p-table [columns]="cols" [value]="clients" stripedRows
-        [tableStyle]="{ 'max-width': '900px', 'margin': '0 auto' }">>
+    <p-table [columns]="cols" [value]="clients" stripedRows [paginator]="true" [rows]="5"
+        [tableStyle]="{ 'max-width': '900px', 'margin': '0 auto' }" [rowsPerPageOptions]="[5, 10, 15]">>
 
         <ng-template #header let-columns>
             <tr>
@@ -41,7 +41,7 @@
         </ng-template>
     </p-table>
 
-    <p-dialog [(visible)]="showDialog" [modal]="true"
+    <p-dialog [(visible)]="showDialog" [modal]="true" [closable]="false"
         [style]="{ width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
         [contentStyle]="{ padding: '2rem' }" [dismissableMask]="true"
         [breakpoints]="{ '960px': '90vw', '640px': '95vw' }" [baseZIndex]="10000" (onHide)="closeDialog()">
@@ -52,7 +52,7 @@
 
                 <!-- Show edit and delete button when it´s in view mode -->
                 @if (formMode === 'view') {
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2 ml-auto">
                     <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
                         style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
 
