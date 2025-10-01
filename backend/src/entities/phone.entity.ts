@@ -5,10 +5,12 @@ import {
     PrimaryGeneratedColumn,
     CreateDateColumn,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    OneToMany
 } from "typeorm";
 
 import { Client } from "./client.entity";
+import { DataUsage } from './dataUsage.entity';
 
 @Entity({ name: "client_phones" })
 export class ClientPhones {
@@ -30,4 +32,9 @@ export class ClientPhones {
     })
     @JoinColumn({ name: "ClientID" })
     client!: Client;
+
+    @OneToMany(() => DataUsage, (usage) => usage.phone, {
+        cascade: true
+    })
+    dataUsages!: DataUsage[];
 }

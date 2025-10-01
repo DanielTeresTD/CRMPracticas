@@ -30,7 +30,7 @@ export class ClientService {
         const existingClient = await clientRepository.findOneBy({ id: clientID });
 
         if (!existingClient) {
-            throw new Error('Cliente no found');
+            throw new Error('Client not found');
         }
 
         clientRepository.merge(existingClient, newClientData);
@@ -38,18 +38,18 @@ export class ClientService {
     }
 
 
-    public static async deleteClient(clientID: number): Promise<{ message: string }> {
+    public static async deleteClient(clientID: number): Promise<string> {
         const clientRepository = DB.getRepository(Client);
 
         const existingClient = await clientRepository.findOneBy({ id: clientID });
 
         if (!existingClient) {
-            throw new Error('Cliente no encontrado');
+            throw new Error('Client not found');
         }
 
         await clientRepository.remove(existingClient);
 
-        return { message: 'Cliente eliminado correctamente' };
+        return 'Client deleted correctly';
     }
 
 }

@@ -37,9 +37,8 @@ export class ClientController {
 
         try {
             const newClient = req.body
-            await ClientService.addClient(newClient);
-
-            resp.data = {};
+        
+            resp.data = await ClientService.addClient(newClient);
             resp.code = 200;
         } catch (error) {
             resp.msg = error as string;
@@ -56,8 +55,7 @@ export class ClientController {
 
         try {
             const newClient = req.body
-            resp.data = {};
-            await ClientService.updateClient(clientID, newClient);
+            resp.data = await ClientService.updateClient(clientID, newClient);
             resp.code = 200;
         } catch (error) {
             resp.msg = error as string;
@@ -72,7 +70,7 @@ export class ClientController {
         const clientID: number = Number(req.params.id);
 
         try {
-            await ClientService.deleteClient(clientID);
+            resp.msg = await ClientService.deleteClient(clientID);
             resp.data = {};
             resp.code = 200;
         } catch (error) {
