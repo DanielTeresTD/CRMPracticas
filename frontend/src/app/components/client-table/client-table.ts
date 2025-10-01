@@ -1,11 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ClientData } from '../../interfaces/clients';
+import { ClientData, ClientPhone } from '../../interfaces/clients';
 import { RouterModule } from '@angular/router';
+
 import { ClientService } from '../../services/client.service';
 import { PhoneService } from '../../services/phone.service';
 
 import { ClientForm } from '../client-form/client-form';
+import { DataUsageCharts } from '../data-usage-charts/data-usage-charts';
 
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -28,14 +30,15 @@ const EMPTY_CLIENT: ClientData = {
   selector: 'app-client-table',
   imports: [
     CommonModule, RouterModule, TableModule, TagModule,
-    RatingModule, ButtonModule, ClientForm, DialogModule
+    RatingModule, ButtonModule, ClientForm, DialogModule,
+    DataUsageCharts
   ],
   templateUrl: './client-table.html',
   styleUrl: './client-table.scss'
 })
 export class ClientTable implements OnInit {
   clients: ClientData[] = [];
-  clientPhones: string[] = [];
+  clientPhones: ClientPhone[] = [];
 
   public cols: Column[] = [
     { field: 'name', header: 'Name' },
@@ -44,6 +47,7 @@ export class ClientTable implements OnInit {
 
   public showDialog: boolean = false;
   public selectedClient?: ClientData;
+  public showChart: boolean = false;
   public formMode: 'view' | 'edit' | 'add' = 'view';
 
   constructor(
@@ -115,9 +119,14 @@ export class ClientTable implements OnInit {
     }
   }
 
+  public showCharts(): void {
+    this.showChart = true;
+  }
+
   public closeDialog(): void {
     this.selectedClient = undefined;
     this.clientPhones = [];
     this.showDialog = false;
+    this.showChart = false;
   }
 }

@@ -21,7 +21,7 @@
         <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
         <ul class="list-disc list-inside pl-4">
             @for (phone of clientPhones; track phone) {
-            <li>{{ phone }}</li>
+            <li>{{ phone.phoneNumber }}</li>
             }
         </ul>
     </div>
@@ -33,9 +33,8 @@
         <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
 
         @for (phone of phoneNums.controls; track $index) {
-        <div class="flex items-center gap-2 mb-2">
-            <!-- Get each phone of FormArray -->
-            <input type="text" [formControl]="getPhoneControl($index)" class="border p-2 rounded w-full" />
+        <div [formGroupName]="$index" class="flex items-center gap-2 mb-2 w-full">
+            <input formControlName="phoneNumber" type="text" class="border p-2 rounded w-full" />
             <button type="button" (click)="removePhone($index)" class="text-red-600 text-sm">
                 Eliminar
             </button>

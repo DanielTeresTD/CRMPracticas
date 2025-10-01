@@ -7,7 +7,7 @@ import {
   Validators, FormControl, FormArray
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ClientData } from '../../interfaces/clients';
+import { ClientData, ClientPhone } from '../../interfaces/clients';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
@@ -19,7 +19,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ClientForm implements OnInit, OnChanges {
   @Input() client!: ClientData;
-  @Input() clientPhones: string[] = [];
+  @Input() clientPhones: ClientPhone[] = [];
   @Input() mode?: 'view' | 'edit' | 'add';
   @Input() onClose!: () => void;
   // Send form data to father component
@@ -65,12 +65,20 @@ export class ClientForm implements OnInit, OnChanges {
     if (this.mode !== 'view') {
       // If phone array exists, create a new FormControl for each phone
       const phoneControls = this.clientPhones?.map(phone =>
-        new FormControl(phone, Validators.required)
+        new FormGroup({
+          phoneID: new FormControl(phone.phoneID ?? null),
+          phoneNumber: new FormControl(phone.phoneNumber, Validators.required),
+        })
       ) ?? [];
 
       // If no phone is added, create an empty field to add new phone or edit existing one.
       if (phoneControls.length === 0) {
-        phoneControls.push(new FormControl('', Validators.required));
+        phoneControls.push(
+          new FormGroup({
+            phoneID: new FormControl<number | null>(null),
+            phoneNumber: new FormControl<string | null>('', Validators.required),
+          })
+        );
       }
 
       // Create form array with key name phoneNums
@@ -104,8 +112,9 @@ export class ClientForm implements OnInit, OnChanges {
 
     // Transform the array of string into interface ClientPhone to handle future calls.
     if (formData.phoneNums) {
-      formData.phoneNums = formData.phoneNums.map((phone: string) => ({
-        phoneNumber: phone
+      formData.phoneNums = formData.phoneNums.map((phone: ClientPhone) => ({
+        phoneID: phone.phoneID,
+        phoneNumber: phone.phoneNumber
       }));
     }
 

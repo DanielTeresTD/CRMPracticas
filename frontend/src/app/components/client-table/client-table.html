@@ -58,6 +58,9 @@
 
                     <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text"
                         style="color: red;" (click)="removeClient()" aria-label="Eliminar cliente"></button>
+
+                    <button pButton type="button" icon="pi pi-chart-bar" class="p-button-rounded p-button-text"
+                        style="color: rgb(170, 0, 255);" (click)="showCharts()" aria-label="Mostrar gráfica"></button>
                 </div>
                 }
             </div>
@@ -65,8 +68,13 @@
 
         @switch (formMode) {
         @case ('view') {
+        @if (showChart) {
+
+        } @else {
         <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="clientPhones"
             [onClose]="closeDialog.bind(this)"></app-client-form>
+        }
+
         }
 
         @case ('add') {
