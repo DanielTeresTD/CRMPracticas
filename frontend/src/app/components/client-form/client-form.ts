@@ -62,22 +62,26 @@ export class ClientForm implements OnInit, OnChanges {
     });
 
     // Edit or add phones
+    // ✅ Modificar para manejar teléfonos con phoneID
     if (this.mode !== 'view') {
-      const phoneNumbers = this.clientPhones?.map(phone => phone.phoneNumber) ?? [];
-
-      const phoneControls = phoneNumbers.map(phoneNumber =>
-        new FormControl(phoneNumber, Validators.required)
-      );
+      const phoneControls = this.clientPhones?.map(phone => {
+        const phoneGroup = new FormGroup({
+          phoneID: new FormControl(phone.phoneID || null),
+          phoneNumber: new FormControl(phone.phoneNumber, Validators.required)
+        });
+        return phoneGroup;
+      }) ?? [];
 
       if (phoneControls.length === 0) {
-        phoneControls.push(new FormControl('', Validators.required));
+        phoneControls.push((new FormGroup({
+          phoneID: new FormControl(null),
+          phoneNumber: new FormControl('', Validators.required)
+        })) as any);
       }
 
-      // Create form array with key name phoneNums
       controls['phoneNums'] = this.fb.array(phoneControls);
     }
 
-    // Create main form group with the controls created
     this.clientForm = this.fb.group(controls);
   }
 
@@ -86,7 +90,11 @@ export class ClientForm implements OnInit, OnChanges {
   }
 
   public addPhone(): void {
-    this.phoneNums.push(new FormControl('', Validators.required));
+    const newPhoneGroup = this.fb.group({
+      phoneID: [null], // Nuevo teléfono sin ID
+      phoneNumber: ['', Validators.required]
+    });
+    this.phoneNums.push(newPhoneGroup);
   }
 
   public removePhone(index: number): void {
@@ -101,14 +109,6 @@ export class ClientForm implements OnInit, OnChanges {
     }
 
     const formData = this.clientForm.getRawValue();
-
-    // Transform the array of string into interface ClientPhone to handle future calls.
-    if (formData.phoneNums) {
-      formData.phoneNums = formData.phoneNums.map((phoneNumber: string) => ({
-        phoneNumber: phoneNumber
-      }));
-    }
-
     // Send the form values to parent component.
     this.formSubmitted.emit(formData);
     // Close form and dialog.
@@ -120,7 +120,16 @@ export class ClientForm implements OnInit, OnChanges {
     return typeof value === 'number' ? 'number' : 'text';
   }
 
-  public getPhoneControl(index: number): FormControl {
-    return this.phoneNums.at(index) as FormControl;
+  public getPhoneIDControl(index: number): FormControl {
+    return this.getPhoneGroup(index).get('phoneID') as FormControl;
+  }
+
+  public getPhoneGroup(index: number): FormGroup {
+    return this.phoneNums.at(index) as FormGroup;
+  }
+
+  // ✅ Agregar método para obtener el control del número de teléfono
+  public getPhoneNumberControl(index: number): FormControl {
+    return this.getPhoneGroup(index).get('phoneNumber') as FormControl;
   }
 }

@@ -29,22 +29,27 @@
 
     <!-- Edit or add phones -->
     @if (mode !== 'view') {
-    <div class="flex flex-col">
-        <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
+    <div class="form-section">
+        <label>Teléfonos:</label>
+        @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
+        <div class="phone-input-group">
+            <!-- ✅ Campo oculto para phoneID -->
+            <input type="hidden" [formControl]="getPhoneIDControl(i)">
 
-        @for (phone of phoneNums.controls; track $index) {
-        <div class="flex items-center gap-2 mb-2 w-full">
-            <input [formControl]="getPhoneControl($index)" type="text" class="border p-2 rounded w-full"
-                placeholder="Número de teléfono" />
-            <button type="button" (click)="removePhone($index)" class="text-red-600 text-sm">
+            <!-- ✅ Input para phoneNumber -->
+            <input type="text" [formControl]="getPhoneNumberControl(i)" placeholder="Número de teléfono"
+                class="phone-input"
+                [class.error]="getPhoneNumberControl(i).invalid && getPhoneNumberControl(i).touched">
+
+            <button type="button" (click)="removePhone(i)" class="remove-phone-btn" [disabled]="phoneNums.length <= 1">
                 Eliminar
             </button>
         </div>
         }
 
-
-        <!-- Create new FormControl and add it to PhoneArray, then the for loop will show this new phone-->
-        <button type="button" (click)="addPhone()" class="text-blue-600 text-sm mt-1">+ Añadir teléfono</button>
+        <button type="button" (click)="addPhone()" class="add-phone-btn">
+            Agregar teléfono
+        </button>
     </div>
 
     <!-- Submit the form, this will trigger onSubmit() function -->
