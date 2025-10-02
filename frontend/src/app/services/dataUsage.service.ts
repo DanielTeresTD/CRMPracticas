@@ -6,7 +6,7 @@ import { Observable } from 'rxjs'; // Handle async data streams
 import { StatisticsDataUsage, DataUsage } from '../interfaces/dataUsage';
 
 @Injectable({ providedIn: 'root' })
-export class ClientService {
+export class DataUsageService {
     private readonly apiURL = enviroment.apiURL;
 
     constructor(private http: HttpClient) { }

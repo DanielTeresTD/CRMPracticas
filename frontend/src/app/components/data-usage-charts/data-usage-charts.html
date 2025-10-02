@@ -1,1 +1,21 @@
-<p>data-usage-charts works!</p>
+<div class="chart-container">
+    @if (clientPhones && clientPhones.length > 0) {
+    <div class="phone-selector">
+        <label>Select phone number:</label>
+        <select (change)="onPhoneSelect($event)" [value]="selectedPhoneID || ''">
+            <option value="">-- Select phone number --</option>
+            @for (phone of clientPhones; track phone.phoneID) {
+            <option [value]="phone.phoneID">{{ phone.phoneNumber }}</option>
+            }
+        </select>
+    </div>
+    }
+
+    @if (selectedPhoneNumber) {
+    <p class="selected-info">Data usage chars of phone: <strong>{{ selectedPhoneNumber }}</strong></p>
+    }
+
+    <canvas id="data-usage" style="margin-bottom: 50px;"></canvas>
+    <canvas id="data-usage-statistics"></canvas>
+
+</div>

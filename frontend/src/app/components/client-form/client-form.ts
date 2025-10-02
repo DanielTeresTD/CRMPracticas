@@ -63,22 +63,14 @@ export class ClientForm implements OnInit, OnChanges {
 
     // Edit or add phones
     if (this.mode !== 'view') {
-      // If phone array exists, create a new FormControl for each phone
-      const phoneControls = this.clientPhones?.map(phone =>
-        new FormGroup({
-          phoneID: new FormControl(phone.phoneID ?? null),
-          phoneNumber: new FormControl(phone.phoneNumber, Validators.required),
-        })
-      ) ?? [];
+      const phoneNumbers = this.clientPhones?.map(phone => phone.phoneNumber) ?? [];
 
-      // If no phone is added, create an empty field to add new phone or edit existing one.
+      const phoneControls = phoneNumbers.map(phoneNumber =>
+        new FormControl(phoneNumber, Validators.required)
+      );
+
       if (phoneControls.length === 0) {
-        phoneControls.push(
-          new FormGroup({
-            phoneID: new FormControl<number | null>(null),
-            phoneNumber: new FormControl<string | null>('', Validators.required),
-          })
-        );
+        phoneControls.push(new FormControl('', Validators.required));
       }
 
       // Create form array with key name phoneNums
@@ -112,9 +104,8 @@ export class ClientForm implements OnInit, OnChanges {
 
     // Transform the array of string into interface ClientPhone to handle future calls.
     if (formData.phoneNums) {
-      formData.phoneNums = formData.phoneNums.map((phone: ClientPhone) => ({
-        phoneID: phone.phoneID,
-        phoneNumber: phone.phoneNumber
+      formData.phoneNums = formData.phoneNums.map((phoneNumber: string) => ({
+        phoneNumber: phoneNumber
       }));
     }
 

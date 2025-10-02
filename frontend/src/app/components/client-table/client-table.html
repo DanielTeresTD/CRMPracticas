@@ -41,14 +41,19 @@
         </ng-template>
     </p-table>
 
-    <p-dialog [(visible)]="showDialog" [modal]="true" [closable]="false"
-        [style]="{ width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
+    <p-dialog [(visible)]="showDialog" [modal]="true" [closable]="false" [style]="showChart ? 
+  { width: '900px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' } : 
+  { width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
         [contentStyle]="{ padding: '2rem' }" [dismissableMask]="true"
         [breakpoints]="{ '960px': '90vw', '640px': '95vw' }" [baseZIndex]="10000" (onHide)="closeDialog()">
 
         <ng-template #header>
             <div class="flex justify-between items-center w-full font-bold text-lg tracking-wide text-surface-700">
+                @if (showChart) {
+                <span>Estadísticas uso de datos</span>
+                } @else {
                 <span>Detalles del Cliente</span>
+                }
 
                 <!-- Show edit and delete button when it´s in view mode -->
                 @if (formMode === 'view') {
@@ -69,7 +74,7 @@
         @switch (formMode) {
         @case ('view') {
         @if (showChart) {
-
+        <app-data-usage-charts [clientPhones]="clientPhones"></app-data-usage-charts>
         } @else {
         <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="clientPhones"
             [onClose]="closeDialog.bind(this)"></app-client-form>

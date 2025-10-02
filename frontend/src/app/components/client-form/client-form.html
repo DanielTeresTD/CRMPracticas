@@ -33,8 +33,9 @@
         <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
 
         @for (phone of phoneNums.controls; track $index) {
-        <div [formGroupName]="$index" class="flex items-center gap-2 mb-2 w-full">
-            <input formControlName="phoneNumber" type="text" class="border p-2 rounded w-full" />
+        <div class="flex items-center gap-2 mb-2 w-full">
+            <input [formControl]="getPhoneControl($index)" type="text" class="border p-2 rounded w-full"
+                placeholder="Número de teléfono" />
             <button type="button" (click)="removePhone($index)" class="text-red-600 text-sm">
                 Eliminar
             </button>
