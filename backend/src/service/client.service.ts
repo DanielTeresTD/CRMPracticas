@@ -30,6 +30,8 @@ export class ClientService {
         const clientRepository = DB.getRepository(Client);
         const phoneRepository = DB.getRepository(ClientPhones);
 
+        console.log(newClientData);
+
         const existingClient = await clientRepository.findOne({
             where: { id: clientID },
             relations: ['phoneNums']
@@ -39,43 +41,46 @@ export class ClientService {
             throw new Error('Client not found');
         }
 
+        // Unpack the object
         const { phoneNums, ...clientBasicData } = newClientData;
+
+        // Only merge client data
         clientRepository.merge(existingClient, clientBasicData);
 
+        // parse phone data of clients
         if (phoneNums && phoneNums.length > 0) {
-            // ✅ Obtener IDs de teléfonos actuales en la DB
             const currentPhoneIds = existingClient.phoneNums.map(phone => phone.phoneID);
-
-            // ✅ Obtener IDs de teléfonos que vienen del frontend
+            // phoneID of front (removing null ones with filter)
             const incomingPhoneIds = phoneNums
                 .filter(phone => phone.phoneID)
                 .map(phone => phone.phoneID);
-
-            // ✅ Encontrar teléfonos a eliminar (están en DB pero no en frontend)
+            // Get phones that will be removed, these are the ones that exists in DB but not front.
             const phonesToDelete = currentPhoneIds.filter(id => !incomingPhoneIds.includes(id));
 
-            // ✅ Eliminar teléfonos que ya no están
+            // remove the phones needed.
             if (phonesToDelete.length > 0) {
                 await phoneRepository
                     .createQueryBuilder()
                     .update(ClientPhones)
+                    // need to call this lambda function to force typeorm put NULL.
                     .set({ client: () => 'NULL' })
+                    // Delete all that have this ids. This function always use primary key
                     .whereInIds(phonesToDelete)
                     .execute();
             }
 
-            // Separar teléfonos existentes de nuevos
+            // Separate phones (among id and number)
             const existingPhones = phoneNums.filter(phone => phone.phoneID);
             const newPhones = phoneNums.filter(phone => !phone.phoneID);
 
             // Actualizar teléfonos existentes
             for (const phone of existingPhones) {
+                // update the refister with that phoneID
                 await phoneRepository.update(phone.phoneID, {
                     phoneNumber: phone.phoneNumber
                 });
             }
 
-            // Crear nuevos teléfonos
             for (const phone of newPhones) {
                 const newPhone = phoneRepository.create({
                     phoneNumber: phone.phoneNumber,

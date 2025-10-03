@@ -18,7 +18,7 @@ export class DataUsage {
     year!: number;
 
     @Column({ name: "dataUsage", type: "decimal", precision: 8, scale: 2, nullable: true })
-    dataUsage!: string | null;
+    dataUsage!: number | null;
 
     @ManyToOne(() => ClientPhones, (phone) => phone.dataUsages, {
         nullable: false,

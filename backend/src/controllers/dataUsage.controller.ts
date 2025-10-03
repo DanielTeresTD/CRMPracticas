@@ -8,7 +8,6 @@ export class DataUsageController {
 
         try {
             const newDataUsage = req.body;
-            console.log(newDataUsage);
 
             await DataUsageService.addDataUsage(newDataUsage);
             resp.code = 200;

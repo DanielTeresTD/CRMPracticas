@@ -2,20 +2,24 @@ import {
   Component, OnInit, ChangeDetectorRef,
   Input, OnChanges, SimpleChanges
 } from '@angular/core';
+import {
+  ReactiveFormsModule, FormBuilder, FormGroup,
+  Validators, FormControl
+} from '@angular/forms';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Observable } from 'rxjs';
 
 import { StatisticsDataUsage } from '../../interfaces/dataUsage';
 import { ClientPhone } from '../../interfaces/clients';
 
 import { DataUsageService } from '../../services/dataUsage.service';
+import { CommonModule } from '@angular/common';
 
 Chart.register(ChartDataLabels);
 
 @Component({
   selector: 'app-data-usage-charts',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './data-usage-charts.html',
   styleUrl: './data-usage-charts.scss'
 })
@@ -26,20 +30,28 @@ export class DataUsageCharts implements OnInit, OnChanges {
   public barChart?: Chart;
   public selectedPhoneID?: number;
 
+  public dataUsageForm?: FormGroup;
+  public showDataUsageForm: boolean = false;
+
   constructor(
     private dataUsageService: DataUsageService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
   ) {
-
+    this.dataUsageForm = this.fb.group({
+      month: [new Date().getMonth() + 1, [Validators.required, Validators.min(1), Validators.max(12)]],
+      year: [new Date().getFullYear(), Validators.required],
+      dataUsage: [0, [Validators.required, Validators.min(0)]]
+    });
   }
 
-  public ngOnInit(): void {
-  }
+  public ngOnInit(): void { }
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['clientPhones']) {
       this.selectedPhoneID = undefined;
       this.statisticsDataUsage = undefined;
+      this.showDataUsageForm = false;
       this.destroyCharts();
     }
   }
@@ -65,8 +77,49 @@ export class DataUsageCharts implements OnInit, OnChanges {
     } else {
       this.selectedPhoneID = undefined;
       this.statisticsDataUsage = undefined;
+      this.showDataUsageForm = false;
       this.destroyCharts();
     }
+  }
+
+  // Alternate form between see and hide 
+  public toggleAddForm(): void {
+    this.showDataUsageForm = !this.showDataUsageForm;
+    if (this.showDataUsageForm && this.dataUsageForm) {
+      this.dataUsageForm.patchValue({
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+        dataUsage: 0
+      });
+    }
+  }
+
+  public onSubmitDataUsage(): void {
+    if (this.dataUsageForm?.valid && this.selectedPhoneID) {
+      const payload = {
+        phoneID: this.selectedPhoneID,
+        ...this.dataUsageForm.value
+      }
+
+      this.dataUsageService.addDataUsageByPhone(payload).subscribe({
+        next: () => {
+          this.showDataUsageForm = true;
+          this.getDataUsageByPhone(this.selectedPhoneID!);
+        },
+        error: (error) => {
+          console.error('Error adding data usage', error);
+        }
+      })
+    }
+  }
+
+  public onCancelAdd(): void {
+    this.showDataUsageForm = false;
+    this.dataUsageForm!.reset({
+      month: new Date().getMonth() + 1,
+      year: new Date().getFullYear(),
+      dataUsage: 0
+    });
   }
 
   public get selectedPhoneNumber(): string {

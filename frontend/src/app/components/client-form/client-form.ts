@@ -62,7 +62,6 @@ export class ClientForm implements OnInit, OnChanges {
     });
 
     // Edit or add phones
-    // ✅ Modificar para manejar teléfonos con phoneID
     if (this.mode !== 'view') {
       const phoneControls = this.clientPhones?.map(phone => {
         const phoneGroup = new FormGroup({
@@ -128,7 +127,6 @@ export class ClientForm implements OnInit, OnChanges {
     return this.phoneNums.at(index) as FormGroup;
   }
 
-  // ✅ Agregar método para obtener el control del número de teléfono
   public getPhoneNumberControl(index: number): FormControl {
     return this.getPhoneGroup(index).get('phoneNumber') as FormControl;
   }

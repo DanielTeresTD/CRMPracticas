@@ -1,5 +1,6 @@
 import { DB } from '../config/typeorm';
 import { DataUsage } from '../entities/dataUsage.entity';
+import { ClientPhones } from '../entities/phone.entity';
 
 interface YearlyDataUsage {
   year: number;
@@ -15,14 +16,23 @@ interface StatisticsDataUsage {
 
 export class DataUsageService {
 
-  public static async addDataUsage(newDataUsage: DataUsage): Promise<void> {
+  public static async addDataUsage(newDataUsage: any): Promise<void> {
     const dataUsageRepository = DB.getRepository(DataUsage);
+    const phoneRepository = DB.getRepository(ClientPhones);
+    const phone = await phoneRepository.findOne({
+      where: { phoneID: newDataUsage.phoneID }
+    });
 
-    const dataUsage = dataUsageRepository.create(newDataUsage);
-    const currDate = new Date();
-    dataUsage.month = dataUsage.month ?? (currDate.getMonth() + 1);
-    dataUsage.year = dataUsage.year ?? currDate.getFullYear();
+    if (!phone) {
+      throw new Error('Phone not found');
+    }
 
+    const dataUsage = dataUsageRepository.create({
+      month: newDataUsage.month,
+      year: newDataUsage.year,
+      dataUsage: newDataUsage.dataUsage,
+      phone: phone
+    });
     await dataUsageRepository.save(dataUsage);
   }
 
