@@ -55,13 +55,31 @@ export class DataUsageController {
         res.json(resp);
     }
 
-    public static async getStatisticsForPhone(req: Request, res: Response) {
+    public static async getStatisticsYearlyForPhone(req: Request, res: Response) {
         const resp = new GenResponse();
 
         try {
             const phoneID = Number(req.params.id);
 
-            resp.data = await DataUsageService.getStatisticsForPhone(phoneID);
+            resp.data = await DataUsageService.getStatisticsForPhoneYearly(phoneID);
+            resp.code = 200;
+            resp.msg = 'Values of register obtained correctly';
+        } catch (error) {
+            resp.msg = error instanceof Error ? error.message : String(error);
+            resp.code = 500;
+        }
+
+        res.json(resp);
+    }
+
+    public static async getStatisticsMonthlyForPhone(req: Request, res: Response) {
+        const resp = new GenResponse();
+
+        try {
+            const phoneID = Number(req.params.id);
+            const year = Number(req.params.year);
+
+            resp.data = await DataUsageService.getStatisticsForPhoneMonthly(phoneID, year);
             resp.code = 200;
             resp.msg = 'Values of register obtained correctly';
         } catch (error) {

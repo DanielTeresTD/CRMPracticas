@@ -6,6 +6,7 @@ const router = Router();
 router.post('/', DataUsageController.addDataUsage);
 router.put('/:id', DataUsageController.updateDataUsage);
 router.delete('/:id', DataUsageController.deleteDataUsage);
-router.get('/:id', DataUsageController.getStatisticsForPhone);
+router.get('/:id', DataUsageController.getStatisticsYearlyForPhone);
+router.get('/:id/:year', DataUsageController.getStatisticsMonthlyForPhone);
 
 export default router;

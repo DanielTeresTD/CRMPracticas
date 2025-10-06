@@ -15,6 +15,10 @@ export class DataUsageService {
         return this.http.get<GenResponse>(`${this.apiURL}/consumo-datos/${phoneID}`);
     }
 
+    public getDataUsageMonthlyByPhone(phoneID: number, year: number): Observable<GenResponse> {
+        return this.http.get<GenResponse>(`${this.apiURL}/consumo-datos/${phoneID}/${year}`);
+    }
+
     public addDataUsageByPhone(dataUsage: DataUsage): Observable<GenResponse> {
         return this.http.post<GenResponse>(`${this.apiURL}/consumo-datos`, dataUsage);
     }

@@ -11,12 +11,17 @@
     </div>
     }
 
-    @if (!showDataUsageForm) {
-    <p class="selected-info">Data usage charts of phone: <strong>{{ selectedPhoneNumber }}</strong></p>
-    }
-
     @if (selectedPhoneNumber) {
 
+    <div class="mb-4">
+        @if (currentView === 'monthly') {
+        <button (click)="backToYearlyView()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 mb-2">
+            ← Back to Yearly View
+        </button>
+        }
+    </div>
+
+    <!-- Button add usage data -->
     <div class="mb-4">
         <button type="button" (click)="toggleAddForm()"
             class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
@@ -25,18 +30,16 @@
 
         @if (showDataUsageForm) {
         <div class="mt-4 p-4 border rounded bg-gray-50">
-            <h3 class="text-lg font-semibold mb-3">
-                Add data usage for {{ selectedPhoneNumber }}
-            </h3>
-
             <form [formGroup]="dataUsageForm!" (ngSubmit)="onSubmitDataUsage()">
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium mb-1">Month:</label>
+                        <!-- Month input, if data is introduced wrongly, put box in red color -->
                         <input type="number" formControlName="month" min="1" max="12" class="w-full border p-2 rounded"
                             [class.border-red-500]="dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched">
+                        <!-- Validate data -->
                         @if (dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched) {
-                        <span class="text-red-500 text-sm">Month is required (1-12)</span>
+                        <span class="text-red-500 text-sm">Month is required in number format (1-12)</span>
                         }
                     </div>
 
@@ -50,17 +53,18 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">Data Usage: </label>
+                        <label class="block text-sm font-medium mb-1">Data Usage:</label>
                         <input type="number" formControlName="dataUsage" step="0.1" min="0"
                             class="w-full border p-2 rounded"
                             [class.border-red-500]="dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched">
                         @if (dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched) {
-                        <span class="text-red-500 text-sm">Data usage is required (min: 0)</span>
+                        <span class="text-red-500 text-sm">Data usage in positive number is required</span>
                         }
                     </div>
                 </div>
 
                 <div class="flex gap-2 mt-4">
+                    <!-- If form is invalid, disable the save button -->
                     <button type="submit" [disabled]="dataUsageForm?.invalid"
                         class="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700">
                         Save
@@ -77,7 +81,11 @@
     </div>
     }
 
-    <!-- ✅ GRÁFICOS -->
-    <canvas id="data-usage" style="margin-bottom: 50px;"></canvas>
-    <canvas id="data-usage-statistics"></canvas>
+    <!-- Show yearly and monthly graphs at same place -->
+    @if (selectedPhoneNumber && !showDataUsageForm) {
+    <div class="charts-section">
+        <canvas id="data-usage" style="margin-bottom: 50px;"></canvas>
+        <canvas id="data-usage-statistics"></canvas>
+    </div>
+    }
 </div>

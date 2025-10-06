@@ -1,10 +1,11 @@
-export interface YearlyDataUsage {
-    year: number;
+export interface UsagePoint {
+    year?: number;
+    month?: number;
     totalUsage: number;
 }
 
 export interface StatisticsDataUsage {
-    dataUsageYearly: YearlyDataUsage[],
+    dataUsage: UsagePoint[],
     mean: number,
     maximum: number,
     minimum: number

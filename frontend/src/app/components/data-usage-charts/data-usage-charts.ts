@@ -25,7 +25,14 @@ Chart.register(ChartDataLabels);
 })
 export class DataUsageCharts implements OnInit, OnChanges {
   @Input() public clientPhones: ClientPhone[] = [];
+  // Save yearly and monthly data
   public statisticsDataUsage?: StatisticsDataUsage;
+  public statisticsDataUsageMonthly?: StatisticsDataUsage;
+
+  // Alternate between monthly and yearly data
+  public currentView: 'yearly' | 'monthly' = 'yearly';
+  public selectedYear?: number;
+
   public lineChart?: Chart;
   public barChart?: Chart;
   public selectedPhoneID?: number;
@@ -47,10 +54,14 @@ export class DataUsageCharts implements OnInit, OnChanges {
 
   public ngOnInit(): void { }
 
+  // Reset all values to default when new client is selected
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['clientPhones']) {
       this.selectedPhoneID = undefined;
       this.statisticsDataUsage = undefined;
+      this.statisticsDataUsageMonthly = undefined;
+      this.currentView = 'yearly';
+      this.selectedYear = undefined;
       this.showDataUsageForm = false;
       this.destroyCharts();
     }
@@ -67,22 +78,27 @@ export class DataUsageCharts implements OnInit, OnChanges {
     }
   }
 
+  // Put everything on default value when new phone is selected to show
   public onPhoneSelect(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const phoneID = Number(select.value);
 
+    this.currentView = 'yearly';
+    this.statisticsDataUsageMonthly = undefined;
+    this.selectedYear = undefined;
+    this.showDataUsageForm = false;
+
     if (phoneID) {
       this.selectedPhoneID = phoneID;
-      this.getDataUsageByPhone(phoneID);
+      this.getYearlyDataUsage(phoneID);
     } else {
       this.selectedPhoneID = undefined;
       this.statisticsDataUsage = undefined;
-      this.showDataUsageForm = false;
       this.destroyCharts();
     }
   }
 
-  // Alternate form between see and hide 
+  // Alternate form between see and hide. If see mode is pressed, show values to enter data 
   public toggleAddForm(): void {
     this.showDataUsageForm = !this.showDataUsageForm;
     if (this.showDataUsageForm && this.dataUsageForm) {
@@ -95,6 +111,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
   }
 
   public onSubmitDataUsage(): void {
+    // Check if form values are correct and create object which will be send to backend
     if (this.dataUsageForm?.valid && this.selectedPhoneID) {
       const payload = {
         phoneID: this.selectedPhoneID,
@@ -103,16 +120,17 @@ export class DataUsageCharts implements OnInit, OnChanges {
 
       this.dataUsageService.addDataUsageByPhone(payload).subscribe({
         next: () => {
-          this.showDataUsageForm = true;
-          this.getDataUsageByPhone(this.selectedPhoneID!);
+          this.showDataUsageForm = false;
+          this.getYearlyDataUsage(this.selectedPhoneID!);
         },
         error: (error) => {
-          console.error('Error adding data usage', error);
+          console.error('An error ocurred while adding new data usage', error);
         }
       })
     }
   }
 
+  // Hide the form and reset with default values
   public onCancelAdd(): void {
     this.showDataUsageForm = false;
     this.dataUsageForm!.reset({
@@ -122,6 +140,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
     });
   }
 
+  // Get phone number filtering it with phoneID.
   public get selectedPhoneNumber(): string {
     if (!this.selectedPhoneID) return '';
 
@@ -129,27 +148,63 @@ export class DataUsageCharts implements OnInit, OnChanges {
     return selectedPhone?.phoneNumber || '';
   }
 
-  private getDataUsageByPhone(phoneID: number): void {
+  // Call backend to fetch all yearly data usage of the current client
+  private getYearlyDataUsage(phoneID: number): void {
     this.dataUsageService.getDataUsageYearlyByPhone(phoneID).subscribe({
       next: (response: any) => {
         this.statisticsDataUsage = response.data;
+        this.currentView = 'yearly';
         this.generateChart();
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('An error ocurred while fetching data\n', error);
+        console.error('An error ocurred while fetching yearly data usage of the client\n', error);
       }
     });
+  }
+
+  // Same as getYearlyDataUsage but with months
+  private getMonthlyDataUsage(year: number): void {
+    if (!this.selectedPhoneID) return;
+
+    this.dataUsageService.getDataUsageMonthlyByPhone(this.selectedPhoneID, year).subscribe({
+      next: (response: any) => {
+        this.statisticsDataUsageMonthly = response.data;
+        this.selectedYear = year;
+        this.currentView = 'monthly';
+        this.generateChart();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('An error ocurred while fetching monthly data usage of the client', error);
+      }
+    });
+  }
+
+  public backToYearlyView(): void {
+    this.currentView = 'yearly';
+    this.selectedYear = undefined;
+    this.statisticsDataUsageMonthly = undefined;
+    this.generateChart();
   }
 
   public generateChart(): void {
     this.destroyCharts();
 
-    if (!this.statisticsDataUsage?.dataUsageYearly) {
-      return;
+    // Decide if use yearly chart or monthly chart and check if values are loaded
+    // before send it to charts.
+    if (this.currentView === 'yearly') {
+      if (!this.statisticsDataUsage?.dataUsage) {
+        return;
+      }
+      this.yearlyUsageDataChart();
+    } else {
+      if (!this.statisticsDataUsageMonthly?.dataUsage) {
+        return;
+      }
+      this.monthlyUsageDataChart();
     }
 
-    this.yearlyUsageDataChart();
     this.basicStatisticsChart();
   }
 
@@ -162,11 +217,11 @@ export class DataUsageCharts implements OnInit, OnChanges {
     this.lineChart = new Chart(canvasDataUsage, {
       type: 'line',
       data: {
-        labels: this.statisticsDataUsage!.dataUsageYearly.map(row => row.year),
+        labels: this.statisticsDataUsage!.dataUsage.map(row => row.year),
         datasets: [
           {
-            label: 'Uso de Datos por Año',
-            data: this.statisticsDataUsage!.dataUsageYearly.map(row => row.totalUsage),
+            label: 'Yearly Data Usage',
+            data: this.statisticsDataUsage!.dataUsage.map(row => row.totalUsage),
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             borderWidth: 2,
@@ -177,10 +232,20 @@ export class DataUsageCharts implements OnInit, OnChanges {
       },
       options: {
         responsive: true,
+        // When a year point of data was clicked, fetch all months data usage for that year
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            // Get position of point I clicked
+            const dataIndex = elements[0].index;
+            // Extract the year from the object that prints all years with data usage
+            const clickedYear = this.statisticsDataUsage!.dataUsage[dataIndex].year!;
+            this.getMonthlyDataUsage(clickedYear);
+          }
+        },
         scales: {
           y: {
             beginAtZero: true
-          }
+          },
         },
         plugins: {
           title: {
@@ -192,7 +257,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
               weight: 'bold'
             },
             padding: {
-              bottom: 20
+              bottom: 30
             }
           },
           datalabels: {
@@ -214,10 +279,74 @@ export class DataUsageCharts implements OnInit, OnChanges {
     });
   }
 
+  private monthlyUsageDataChart(): void {
+    const canvasDataUsage = document.getElementById('data-usage') as HTMLCanvasElement;
+    if (!canvasDataUsage) return;
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Same as yearly chart, only difference it´s used green color instead of blue
+    this.lineChart = new Chart(canvasDataUsage, {
+      type: 'line',
+      data: {
+        labels: this.statisticsDataUsageMonthly!.dataUsage.map(point => monthNames[point.month! - 1]),
+        datasets: [
+          {
+            label: `Monthly Data Usage ${this.selectedYear}`,
+            data: this.statisticsDataUsageMonthly!.dataUsage.map(point => point.totalUsage),
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: `Monthly Data Usage ${this.selectedYear}`,
+            color: '#f8fafc',
+            font: { size: 16, weight: 'bold' },
+            padding: { bottom: 30 }
+          },
+          datalabels: {
+            formatter: function (value: number) {
+              return `${Number(value).toFixed(2)}`;
+            },
+            font: { size: 11, weight: 'bold' },
+            color: '#f8fafc',
+            align: 'top',
+            anchor: 'center',
+            offset: 10
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+
   private basicStatisticsChart(): void {
     const canvasStatistics = document.getElementById('data-usage-statistics') as HTMLCanvasElement;
     if (!canvasStatistics) {
       return;
+    }
+
+    let currentStats: StatisticsDataUsage;
+    let titleText: string;
+
+    if (this.currentView === 'yearly') {
+      currentStats = this.statisticsDataUsage!;
+      titleText = 'Annual Statistics - Usage Data';
+    } else {
+      currentStats = this.statisticsDataUsageMonthly!;
+      titleText = `Monthly Statistics - Usage Data (${this.selectedYear})`;
     }
 
     this.barChart = new Chart(canvasStatistics, {
@@ -226,11 +355,11 @@ export class DataUsageCharts implements OnInit, OnChanges {
         labels: ['Mean', 'Max', 'Min'],
         datasets: [
           {
-            label: 'Estadísticas de Uso',
+            label: this.currentView === 'yearly' ? 'Annual Statistics' : 'Monthly Statistics',
             data: [
-              this.statisticsDataUsage!.mean,
-              this.statisticsDataUsage!.maximum,
-              this.statisticsDataUsage!.minimum
+              currentStats.mean,
+              currentStats.maximum,
+              currentStats.minimum
             ],
             backgroundColor: [
               'rgba(34, 197, 94, 0.8)',
@@ -253,13 +382,15 @@ export class DataUsageCharts implements OnInit, OnChanges {
             beginAtZero: true,
             title: {
               display: true,
+              text: 'Data Usage',
+              color: '#f8fafc'
             }
           }
         },
         plugins: {
           title: {
             display: true,
-            text: 'Basic statistics usage data',
+            text: titleText,
             color: '#f8fafc',
             font: {
               size: 16,

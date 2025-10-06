@@ -2,13 +2,14 @@ import { DB } from '../config/typeorm';
 import { DataUsage } from '../entities/dataUsage.entity';
 import { ClientPhones } from '../entities/phone.entity';
 
-interface YearlyDataUsage {
-  year: number;
+interface UsagePoint {
+  year?: number;
+  month?: number;
   totalUsage: number;
 }
 
 interface StatisticsDataUsage {
-  dataUsageYearly: YearlyDataUsage[],
+  dataUsage: UsagePoint[],
   mean: number,
   maximum: number,
   minimum: number
@@ -60,9 +61,9 @@ export class DataUsageService {
     return 'Registery data usage deleted correctly';
   }
 
-  public static async getStatisticsForPhone(phoneID: number): Promise<StatisticsDataUsage> {
+  public static async getStatisticsForPhoneYearly(phoneID: number): Promise<StatisticsDataUsage> {
     const statisticsDataUsage: StatisticsDataUsage = {
-      dataUsageYearly: await this.getDataUsageYearly(phoneID),
+      dataUsage: await this.getDataUsageYearly(phoneID),
       mean: await this.getMeanDataUsage(phoneID),
       maximum: await this.getMaximumDataUsage(phoneID),
       minimum: await this.getMinimumDataUsage(phoneID)
@@ -71,7 +72,18 @@ export class DataUsageService {
     return statisticsDataUsage;
   }
 
-  private static async getDataUsageYearly(phoneID: number): Promise<YearlyDataUsage[]> {
+  public static async getStatisticsForPhoneMonthly(phoneID: number, year: number): Promise<StatisticsDataUsage> {
+    const statisticsDataUsageMonthly: StatisticsDataUsage = {
+      dataUsage: await this.getDataUsageMonthly(phoneID, year),
+      mean: await this.getMeanDataUsageMonthly(phoneID, year),
+      maximum: await this.getMaximumDataUsageMonthly(phoneID, year),
+      minimum: await this.getMinimumDataUsageMonthly(phoneID, year)
+    };
+
+    return statisticsDataUsageMonthly;
+  }
+
+  private static async getDataUsageYearly(phoneID: number): Promise<UsagePoint[]> {
     const result = await DB
       .getRepository(DataUsage)
       .createQueryBuilder("data") // how will be called keys in the object returned
@@ -92,7 +104,7 @@ export class DataUsageService {
       ];
     }
 
-    const parsedResult: YearlyDataUsage[] = result.map((r) => ({
+    const parsedResult: UsagePoint[] = result.map((r) => ({
       year: Number(r.year),
       totalUsage: Math.round(parseFloat(r.totalUsage) * 100) / 100,
     }));
@@ -132,4 +144,59 @@ export class DataUsageService {
 
     return Math.round(parseFloat(result.meanVal) * 100) / 100;
   }
+
+  private static async getDataUsageMonthly(phoneID: number, year: number): Promise<UsagePoint[]> {
+    const result = await DB
+      .getRepository(DataUsage)
+      .createQueryBuilder("data")
+      .select("data.month", "month")
+      .addSelect("SUM(data.dataUsage)", "totalUsage")
+      .where("data.phoneID = :phoneID AND data.year = :year", { phoneID, year })
+      .groupBy("data.month")
+      .orderBy("data.month", "ASC")
+      .getRawMany();
+
+    if (!result || result.length === 0) {
+      return [];
+    }
+
+    return result.map((r) => ({
+      month: Number(r.month),
+      totalUsage: Math.round(parseFloat(r.totalUsage) * 100) / 100,
+    }));
+  }
+
+  private static async getMeanDataUsageMonthly(phoneID: number, year: number): Promise<number> {
+    const result = await DB
+      .getRepository(DataUsage)
+      .createQueryBuilder("data")
+      .select("AVG(data.dataUsage)", "meanVal")
+      .where("data.phoneID = :phoneID AND data.year = :year", { phoneID, year })
+      .getRawOne();
+
+    return Math.round(parseFloat(result.meanVal || "0") * 100) / 100;
+  }
+
+  private static async getMaximumDataUsageMonthly(phoneID: number, year: number): Promise<number> {
+    const result = await DB
+      .getRepository(DataUsage)
+      .createQueryBuilder("data")
+      .select("MAX(data.dataUsage)", "maxVal")
+      .where("data.phoneID = :phoneID AND data.year = :year", { phoneID, year })
+      .getRawOne();
+
+    return Math.round(parseFloat(result.maxVal || "0") * 100) / 100;
+  }
+
+  private static async getMinimumDataUsageMonthly(phoneID: number, year: number): Promise<number> {
+    const result = await DB
+      .getRepository(DataUsage)
+      .createQueryBuilder("data")
+      .select("MIN(data.dataUsage)", "minVal")
+      .where("data.phoneID = :phoneID AND data.year = :year", { phoneID, year })
+      .getRawOne();
+
+    return Math.round(parseFloat(result.minVal || "0") * 100) / 100;
+  }
+
 }
