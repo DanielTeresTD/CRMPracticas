@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GenResponse } from './genResponse';
-import { PhoneService } from '../service/phone.service';
+import { PhoneService } from '../services/phone.service';
 
 export class PhoneController {
     public static async getPhonesFromClient(req: Request, res: Response) {

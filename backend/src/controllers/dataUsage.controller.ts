@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GenResponse } from './genResponse';
-import { DataUsageService } from '../service/dataUsage.service';
+import { DataUsageService } from '../services/dataUsage.service';
 
 export class DataUsageController {
     public static async addDataUsage(req: Request, res: Response) {

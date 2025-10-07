@@ -6,24 +6,27 @@ import {
   ReactiveFormsModule, FormBuilder, FormGroup,
   Validators, FormControl
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import { StatisticsDataUsage } from '../../interfaces/dataUsage';
-import { ClientPhone } from '../../interfaces/clients';
+import { ClientData, ClientPhone } from '../../interfaces/clients';
 
 import { DataUsageService } from '../../services/dataUsage.service';
-import { CommonModule } from '@angular/common';
+import { ExportToPdf } from '../export-to-pdf/export-to-pdf';
 
 Chart.register(ChartDataLabels);
 
 @Component({
   selector: 'app-data-usage-charts',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ExportToPdf],
   templateUrl: './data-usage-charts.html',
   styleUrl: './data-usage-charts.scss'
 })
 export class DataUsageCharts implements OnInit, OnChanges {
+  // Only used to send to pdf the client data
+  @Input() public client?: ClientData;
   @Input() public clientPhones: ClientPhone[] = [];
   // Save yearly and monthly data
   public statisticsDataUsage?: StatisticsDataUsage;
@@ -122,6 +125,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
         next: () => {
           this.showDataUsageForm = false;
           this.getYearlyDataUsage(this.selectedPhoneID!);
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('An error ocurred while adding new data usage', error);
@@ -138,6 +142,12 @@ export class DataUsageCharts implements OnInit, OnChanges {
       year: new Date().getFullYear(),
       dataUsage: 0
     });
+
+    this.cdr.detectChanges();
+
+    if (this.selectedPhoneID && this.statisticsDataUsage) {
+      this.generateChart();
+    }
   }
 
   // Get phone number filtering it with phoneID.
@@ -250,8 +260,8 @@ export class DataUsageCharts implements OnInit, OnChanges {
         plugins: {
           title: {
             display: true,
-            text: 'Yearly usage data',
-            color: '#f8fafc',
+            text: 'Yearly data usage',
+            color: '#1f2937',
             font: {
               size: 16,
               weight: 'bold'
@@ -268,7 +278,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
               size: 11,
               weight: 'bold'
             },
-            color: '#f8fafc',
+            color: '#374151',
             align: 'top',
             anchor: 'center',
             offset: 10
@@ -312,7 +322,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
           title: {
             display: true,
             text: `Monthly Data Usage ${this.selectedYear}`,
-            color: '#f8fafc',
+            color: '#1f2937',
             font: { size: 16, weight: 'bold' },
             padding: { bottom: 30 }
           },
@@ -321,7 +331,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
               return `${Number(value).toFixed(2)}`;
             },
             font: { size: 11, weight: 'bold' },
-            color: '#f8fafc',
+            color: '#374151',
             align: 'top',
             anchor: 'center',
             offset: 10
@@ -343,10 +353,10 @@ export class DataUsageCharts implements OnInit, OnChanges {
 
     if (this.currentView === 'yearly') {
       currentStats = this.statisticsDataUsage!;
-      titleText = 'Annual Statistics - Usage Data';
+      titleText = 'Annual Statistics - Data Usage';
     } else {
       currentStats = this.statisticsDataUsageMonthly!;
-      titleText = `Monthly Statistics - Usage Data (${this.selectedYear})`;
+      titleText = `Monthly Statistics - Data Usage (${this.selectedYear})`;
     }
 
     this.barChart = new Chart(canvasStatistics, {
@@ -383,7 +393,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
             title: {
               display: true,
               text: 'Data Usage',
-              color: '#f8fafc'
+              color: '#1f2937'
             }
           }
         },
@@ -391,7 +401,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
           title: {
             display: true,
             text: titleText,
-            color: '#f8fafc',
+            color: '#1f2937',
             font: {
               size: 16,
               weight: 'bold'
@@ -411,7 +421,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
               size: 11,
               weight: 'bold'
             },
-            color: '#f8fafc',
+            color: '#374151',
             align: 'top',
             anchor: 'end',
             offset: 5
@@ -420,5 +430,38 @@ export class DataUsageCharts implements OnInit, OnChanges {
       },
       plugins: [ChartDataLabels]
     });
+  }
+
+  public getChartsForPDF(): any[] {
+    const charts = [];
+
+    // Solo incluir gráficos si existen
+    if (this.lineChart && this.selectedPhoneNumber) {
+      charts.push({
+        canvas: this.lineChart.canvas,
+        title: this.currentView === 'yearly' ?
+          'Yearly Data Usage' :
+          `Monthly Data Usage for ${this.selectedYear}`,
+        phoneNumber: this.selectedPhoneNumber
+      });
+    }
+
+    if (this.barChart && this.selectedPhoneNumber) {
+      charts.push({
+        canvas: this.barChart.canvas,
+        title: this.currentView === 'yearly' ?
+          'Annual Statistics' :
+          `Monthly Statistics (${this.selectedYear})`,
+        phoneNumber: this.selectedPhoneNumber
+      });
+    }
+
+    return charts;
+  }
+
+  // Needed because jsPDF epxect image with base64 format.
+  public getChartAsBase64(chartType: 'line' | 'bar'): string | null {
+    const chart = chartType === 'line' ? this.lineChart : this.barChart;
+    return chart ? chart.toBase64Image() : null;
   }
 }

@@ -21,64 +21,71 @@
         }
     </div>
 
-    <!-- Button add usage data -->
-    <div class="mb-4">
+    <!-- Button add usage data and load button to export charts to pdf -->
+    <div class="mb-4 flex gap-2">
         <button type="button" (click)="toggleAddForm()"
             class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             {{ showDataUsageForm ? 'Cancel' : 'Add Data Usage' }}
         </button>
 
-        @if (showDataUsageForm) {
-        <div class="mt-4 p-4 border rounded bg-gray-50">
-            <form [formGroup]="dataUsageForm!" (ngSubmit)="onSubmitDataUsage()">
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Month:</label>
-                        <!-- Month input, if data is introduced wrongly, put box in red color -->
-                        <input type="number" formControlName="month" min="1" max="12" class="w-full border p-2 rounded"
-                            [class.border-red-500]="dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched">
-                        <!-- Validate data -->
-                        @if (dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched) {
-                        <span class="text-red-500 text-sm">Month is required in number format (1-12)</span>
-                        }
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Year:</label>
-                        <input type="number" formControlName="year" class="w-full border p-2 rounded"
-                            [class.border-red-500]="dataUsageForm?.get('year')?.invalid && dataUsageForm?.get('year')?.touched">
-                        @if (dataUsageForm?.get('year')?.invalid && dataUsageForm?.get('year')?.touched) {
-                        <span class="text-red-500 text-sm">Year is required</span>
-                        }
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Data Usage:</label>
-                        <input type="number" formControlName="dataUsage" step="0.1" min="0"
-                            class="w-full border p-2 rounded"
-                            [class.border-red-500]="dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched">
-                        @if (dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched) {
-                        <span class="text-red-500 text-sm">Data usage in positive number is required</span>
-                        }
-                    </div>
-                </div>
-
-                <div class="flex gap-2 mt-4">
-                    <!-- If form is invalid, disable the save button -->
-                    <button type="submit" [disabled]="dataUsageForm?.invalid"
-                        class="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700">
-                        Save
-                    </button>
-
-                    <button type="button" (click)="onCancelAdd()"
-                        class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-        }
+        <app-export-to-pdf class="ml-4" [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage"
+            [client]="client" [selectedPhoneNumber]="selectedPhoneNumber">
+        </app-export-to-pdf>
     </div>
+
+    @if (showDataUsageForm) {
+    <div class="mt-4 p-4 border rounded bg-gray-50">
+        <form [formGroup]="dataUsageForm!" (ngSubmit)="onSubmitDataUsage()">
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Month:</label>
+                    <!-- Month input, if data is introduced wrongly, put box in red color -->
+                    <input type="number" formControlName="month" min="1" max="12" class="w-full border p-2 rounded"
+                        [class.border-red-500]="dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched">
+                    <!-- Validate data -->
+                    @if (dataUsageForm?.get('month')?.invalid && dataUsageForm?.get('month')?.touched) {
+                    <span class="text-red-500 text-sm">Month is required in number format (1-12)</span>
+                    }
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Year:</label>
+                    <input type="number" formControlName="year" class="w-full border p-2 rounded"
+                        [class.border-red-500]="dataUsageForm?.get('year')?.invalid && dataUsageForm?.get('year')?.touched">
+                    @if (dataUsageForm?.get('year')?.invalid && dataUsageForm?.get('year')?.touched) {
+                    <span class="text-red-500 text-sm">Year is required</span>
+                    }
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Data Usage:</label>
+                    <input type="number" formControlName="dataUsage" step="0.1" min="0"
+                        class="w-full border p-2 rounded"
+                        [class.border-red-500]="dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched">
+                    @if (dataUsageForm?.get('dataUsage')?.invalid && dataUsageForm?.get('dataUsage')?.touched) {
+                    <span class="text-red-500 text-sm">Data usage in positive number is required</span>
+                    }
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <!-- If form is invalid, disable the save button -->
+                <button type="submit" [disabled]="dataUsageForm?.invalid"
+                    class="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700">
+                    Save
+                </button>
+
+                <button type="button" (click)="onCancelAdd()"
+                    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                    Cancel
+                </button>
+
+
+            </div>
+        </form>
+    </div>
+    }
+
     }
 
     <!-- Show yearly and monthly graphs at same place -->

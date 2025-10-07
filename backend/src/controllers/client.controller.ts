@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GenResponse } from './genResponse';
-import { ClientService } from '../service/client.service';
+import { ClientService } from '../services/client.service';
 
 export class ClientController {
     public static async getClients(req: Request, res: Response) {
@@ -37,7 +37,7 @@ export class ClientController {
 
         try {
             const newClient = req.body
-        
+
             resp.data = await ClientService.addClient(newClient);
             resp.code = 200;
         } catch (error) {
