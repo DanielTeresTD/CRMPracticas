@@ -22,14 +22,14 @@
     </div>
 
     <!-- Button add usage data and load button to export charts to pdf -->
-    <div class="mb-4 flex gap-2">
+    <div class="mb-4 flex justify-content-between align-items-center">
         <button type="button" (click)="toggleAddForm()"
             class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             {{ showDataUsageForm ? 'Cancel' : 'Add Data Usage' }}
         </button>
 
-        <app-export-to-pdf class="ml-4" [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage"
-            [client]="client" [selectedPhoneNumber]="selectedPhoneNumber">
+        <app-export-to-pdf [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage" [client]="client"
+            [selectedPhoneNumber]="selectedPhoneNumber">
         </app-export-to-pdf>
     </div>
 

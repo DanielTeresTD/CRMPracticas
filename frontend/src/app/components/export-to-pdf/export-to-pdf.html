@@ -1,18 +1,25 @@
-<button type="button" (click)="exportToPDF()" [disabled]="!charts || charts.length === 0"
-    class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400">
-    Export to PDF
-</button>
+<div class="export-buttons-container compact-buttons flex align-items-center gap-2 flex-wrap">
+    <p-button label="Export to PDF" icon="pi pi-file-pdf" severity="danger" size="small"
+        [disabled]="!charts || charts.length === 0" (onClick)="exportToPDF()">
+    </p-button>
 
-<button type="button" (click)="sendToEmail()" [disabled]="!charts || charts.length === 0"
-    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400">
-    Send Email
-</button>
+    @if (!showEmailInput) {
+    <p-button label="Send Email" icon="pi pi-envelope" severity="info" size="small"
+        [disabled]="!charts || charts.length === 0" (onClick)="sendToEmail()">
+    </p-button>
+    }
 
-@if (showEmailInput) {
-<div class="email-popup">
-    <p>Ingresa el email:</p>
-    <input type="email" [(ngModel)]="tempEmail" placeholder="ejemplo@correo.com" (keyup.enter)="validate()">
-    <button (click)="validate()">Continuar</button>
-    <button (click)="cancelEmail()">Cancelar</button>
+    @if (showEmailInput) {
+    <div class="flex gap-1 align-items-center p-2 border-round surface-border border-1">
+        <p-inputText [(ngModel)]="tempEmail" placeholder="Email address" class="w-12rem" size="small"
+            (keyup.enter)="validate()">
+        </p-inputText>
+
+        <p-button icon="pi pi-check" severity="success" size="small" (onClick)="validate()" pTooltip="Send Email">
+        </p-button>
+
+        <p-button icon="pi pi-times" severity="secondary" size="small" (onClick)="cancelEmail()" pTooltip="Cancel">
+        </p-button>
+    </div>
+    }
 </div>
-}

@@ -1,0 +1,37 @@
+:host {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: -30px;
+}
+
+.export-buttons-container {
+    margin-left: auto;
+    transform: translateY(-10px);
+
+    ::ng-deep {
+        .p-button {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            height: 2rem !important;
+
+            .p-button-icon {
+                font-size: 0.7rem !important;
+            }
+
+            .p-button-label {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        .p-inputtext {
+            padding: 0.25rem 0.4rem !important;
+            font-size: 0.75rem !important;
+            height: 2rem !important;
+        }
+
+        .surface-border {
+            padding: 0.4rem !important;
+        }
+    }
+}

@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { StatisticsDataUsage } from '../../interfaces/dataUsage';
 import { ClientData } from '../../interfaces/clients';
 import { EmailService } from '../../services/email.service';
-import { buffer } from 'rxjs';
+
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-export-to-pdf',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule],
   templateUrl: './export-to-pdf.html',
   styleUrl: './export-to-pdf.scss'
 })
@@ -114,10 +115,9 @@ export class ExportToPdf {
       pdfData: pdfBase64
     };
 
-    console.log("Sendind data to backend from processEmailSend()", emailInfo);
     this.emailService.sendPdfToEmail(emailInfo).subscribe({
       next: (response) => {
-        console.info("Sending email");
+        console.info("Email with report sent correctly");
       },
       error: (err) => {
         console.error("It could not be send the email", err);
@@ -130,7 +130,7 @@ export class ExportToPdf {
       this.showEmailInput = false;
       this.processEmailSend();
     } else {
-      alert('Email inválido');
+      alert("Invalid email");
     }
   }
 

@@ -68,6 +68,12 @@ export class DataUsageCharts implements OnInit, OnChanges {
       this.showDataUsageForm = false;
       this.destroyCharts();
     }
+
+    if (changes['statisticsDataUsage'] || changes['statisticsDataUsageMonthly']) {
+      if (this.statisticsDataUsage || this.statisticsDataUsageMonthly) {
+        this.generateChart();
+      }
+    }
   }
 
   private destroyCharts(): void {
