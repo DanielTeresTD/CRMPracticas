@@ -5,9 +5,10 @@ import { EmailService } from '../services/email.service';
 export class EmailController {
     public static async sendEmail(req: Request, res: Response) {
         const resp = new GenResponse();
+        const bodyData = req.body;
 
         try {
-            await EmailService.sendEmail();
+            await EmailService.sendEmail(bodyData);
             resp.code = 200;
             resp.msg = 'Email send';
             resp.data = {};

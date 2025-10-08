@@ -2,3 +2,17 @@
     class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:bg-gray-400">
     Export to PDF
 </button>
+
+<button type="button" (click)="sendToEmail()" [disabled]="!charts || charts.length === 0"
+    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400">
+    Send Email
+</button>
+
+@if (showEmailInput) {
+<div class="email-popup">
+    <p>Ingresa el email:</p>
+    <input type="email" [(ngModel)]="tempEmail" placeholder="ejemplo@correo.com" (keyup.enter)="validate()">
+    <button (click)="validate()">Continuar</button>
+    <button (click)="cancelEmail()">Cancelar</button>
+</div>
+}

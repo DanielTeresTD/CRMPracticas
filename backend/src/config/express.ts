@@ -10,14 +10,23 @@ export class ExpressServer {
     private server?: http.Server;
 
     private readonly corsOptions = {
-        origin: ["http://localhost:4200", "http://127.0.0.1:4200"]
+        origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
+        // Http methods allowed
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        // Content-type it´s for json apps
+        // x-request to use XMLHttpRequest
+        // Accept to indicate response waited
+        allowedHeaders: ['Content-Type', 'X-Requested-With', 'Accept'],
+        optionsSuccessStatus: 200 // Indica code for success
     }
 
     constructor(port?: number) {
         this.port = port ?? PORT;
         this.app = express();
 
-        this.app.use(express.json());
+        // Increase size limit json
+        this.app.use(express.json({ limit: '50mb' }));
+        this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
         this.app.use(cors(this.corsOptions));
         this.app.use('/api', IndexRoutes);
 

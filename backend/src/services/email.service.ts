@@ -1,30 +1,41 @@
 import nodemailer from 'nodemailer';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+
+interface EmailFileInfo {
+    clientEmail: string,
+    fileName: string
+    pdfData: any,
+}
 
 export class EmailService {
 
-    public static async sendEmail(pathToPdf: string = ""): Promise<void> {
+    public static async sendEmail(emailInfo: EmailFileInfo): Promise<void> {
         const transponter = nodemailer.createTransport({
             host: "smtp.ethereal.email",
             port: 587,
             secure: false,
             auth: {
-                user: "nels67@ethereal.email",
-                pass: "PjWa1w54q6Ksk27juj"
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PSSWD
             }
         });
 
         const info = await transponter.sendMail({
-            from: "Correo prueba <nels67@ethereal.email>",
-            to: "kafavep645@inilas.com",
-            subject: "Prueba correo",
-            text: "Esto es el cuerpo del mensaje",
+            from: `Email generated automaticcly <${process.env.EMAIL_USER}>`,
+            to: emailInfo.clientEmail,
+            subject: "Report data usages",
+            text: "This is the report asked to be send",
             attachments: [{
-                filename: path.basename(pathToPdf),
-                path: pathToPdf
+                filename: emailInfo.fileName,
+                content: emailInfo.pdfData,
+                contentType: 'application/pdf',
+                encoding: 'base64'
             }]
+
         });
 
-        console.log("Mensaje enviado:", info.messageId);
+        console.log("Email send:", info.messageId);
     }
 }
