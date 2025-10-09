@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import {
   ReactiveFormsModule, FormBuilder, FormGroup,
-  Validators, FormControl
+  Validators, FormsModule
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
@@ -16,11 +16,17 @@ import { ClientData, ClientPhone } from '../../interfaces/clients';
 import { DataUsageService } from '../../services/dataUsage.service';
 import { ExportToPdf } from '../export-to-pdf/export-to-pdf';
 
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+
+
 Chart.register(ChartDataLabels);
 
 @Component({
   selector: 'app-data-usage-charts',
-  imports: [CommonModule, ReactiveFormsModule, ExportToPdf],
+  imports: [CommonModule, ReactiveFormsModule, ExportToPdf, SelectModule, FormsModule,
+    ButtonModule
+  ],
   templateUrl: './data-usage-charts.html',
   styleUrl: './data-usage-charts.scss'
 })
@@ -87,11 +93,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
     }
   }
 
-  // Put everything on default value when new phone is selected to show
-  public onPhoneSelect(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const phoneID = Number(select.value);
-
+  public onPhoneChanged(phoneID: number): void {
     this.currentView = 'yearly';
     this.statisticsDataUsageMonthly = undefined;
     this.selectedYear = undefined;
@@ -106,7 +108,6 @@ export class DataUsageCharts implements OnInit, OnChanges {
       this.destroyCharts();
     }
   }
-
   // Alternate form between see and hide. If see mode is pressed, show values to enter data 
   public toggleAddForm(): void {
     this.showDataUsageForm = !this.showDataUsageForm;

@@ -1,58 +1,88 @@
-/* :host ::ng-deep .p-dialog-mask {
-    background-color: rgba(128, 128, 128, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+/* Botones aún más pequeños */
+.p-button-sm {
+    padding: 0.15rem 0.4rem !important;
+    font-size: 0.65rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem !important;
+    line-height: 1.2 !important;
 }
 
-:host ::ng-deep .p-dialog {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-    background-color: white;
-    padding: 2rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+/* Botón eliminar teléfono (solo icono) */
+.phone-input-group .p-button.p-button-rounded.p-button-sm {
+    padding: 0.15rem !important;
+    height: 1.5rem !important;
+    width: 1.5rem !important;
+    font-size: 0.7rem !important;
 }
 
-:host ::ng-deep .p-dialog-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #eee;
-    color: #222;
-    letter-spacing: 0.03em;
-}
-
-.client-details-container {
-    margin-top: 1rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #444;
-}
-
-.client-details-container span.font-semibold {
-    color: #666;
-}
-
-:host ::ng-deep .p-dialog-footer {
-    display: flex !important;
-    justify-content: center !important;
-    padding: 1.5rem 0 1rem 0 !important;
-}
-
-:host ::ng-deep .p-button {
-    border-radius: 24px !important;
-    padding: 0.5rem 2rem !important;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12) !important;
-    font-weight: 600 !important;
-    transition: background-color 0.3s ease, color 0.3s ease !important;
-}
-
-:host ::ng-deep .p-button:hover {
-    background-color: #005fcc !important;
+/* Botón "Agregar teléfono" más pequeño, color azul */
+.p-button-agregar {
+    @extend .p-button-sm;
+    background-color: #007ad9 !important;
+    /* azul */
+    border-color: #007ad9 !important;
     color: white !important;
-    box-shadow: 0 5px 15px rgba(0, 95, 204, 0.4) !important;
-} */
+}
+
+.p-button-agregar {
+    margin-top: 0.5rem;
+    background-color: #005bb5 !important;
+    border-color: #005bb5 !important;
+}
+
+/* Botón "Guardar cambios" más pequeño, color naranja */
+.p-button-guardar {
+    @extend .p-button-sm;
+    background-color: #ff6f00 !important;
+    /* naranja oscuro */
+    border-color: #ff6f00 !important;
+    color: white !important;
+    margin-top: 1rem;
+    /* separación extra arriba */
+    min-width: 130px !important;
+}
+
+.p-button-guardar:hover {
+    background-color: #cc5800 !important;
+    border-color: #cc5800 !important;
+}
+
+/* Separación entre botón agregar y guardar */
+.add-phone-btn {
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    margin-bottom: 0.8rem;
+
+    label {
+        font-weight: bold;
+        font-size: 1rem;
+        margin-bottom: 0.6rem;
+        /* más espacio entre label e input */
+        color: #222;
+    }
+
+    input {
+        padding: 0.4rem 0.5rem;
+        /* un poco menos alto */
+        font-size: 0.9rem;
+        /* fuente un poco más pequeña */
+        border: 1px solid #bbb;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+        height: 32px;
+        /* altura fija más pequeña */
+    }
+
+    input:focus {
+        border-color: #4caf50;
+        outline: none;
+    }
+
+    input[readonly] {
+        background-color: #eee;
+        cursor: default;
+    }
+}

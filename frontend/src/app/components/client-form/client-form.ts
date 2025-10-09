@@ -9,11 +9,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { ClientData, ClientPhone } from '../../interfaces/clients';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
   templateUrl: './client-form.html',
   styleUrl: './client-form.scss'
 })

@@ -1,13 +1,9 @@
 <div class="chart-container">
     @if (clientPhones && clientPhones.length > 0) {
     <div class="phone-selector">
-        <label>Select phone number:</label>
-        <select (change)="onPhoneSelect($event)" [value]="selectedPhoneID || ''">
-            <option value="">-- Select phone number --</option>
-            @for (phone of clientPhones; track phone.phoneID) {
-            <option [value]="phone.phoneID">{{ phone.phoneNumber }}</option>
-            }
-        </select>
+        <p-select [options]="clientPhones" [(ngModel)]="selectedPhoneID" [checkmark]="true" optionLabel="phoneNumber"
+            [showClear]="true" placeholder="Select a Phone" appendTo="body" (ngModelChange)="onPhoneChanged($event)"
+            optionValue="phoneID" class="w-full md:w-56" />
     </div>
     }
 
@@ -22,16 +18,16 @@
     </div>
 
     <!-- Button add usage data and load button to export charts to pdf -->
-    <div class="mb-4 flex justify-content-between align-items-center">
-        <button type="button" (click)="toggleAddForm()"
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            {{ showDataUsageForm ? 'Cancel' : 'Add Data Usage' }}
-        </button>
-
-        <app-export-to-pdf [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage" [client]="client"
-            [selectedPhoneNumber]="selectedPhoneNumber">
-        </app-export-to-pdf>
+    <div class="select-button-container">
+        <p-button type="button" (onClick)="toggleAddForm()" [label]="showDataUsageForm ? 'Cancel' : 'Add Data Usage'"
+            [class]="showDataUsageForm ? 'p-button-danger' : 'p-button-success'"
+            class="add-data-button p-button-text" />
     </div>
+
+    <app-export-to-pdf [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage" [client]="client"
+        [selectedPhoneNumber]="selectedPhoneNumber">
+    </app-export-to-pdf>
+
 
     @if (showDataUsageForm) {
     <div class="mt-4 p-4 border rounded bg-gray-50">

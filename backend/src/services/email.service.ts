@@ -1,7 +1,4 @@
 import nodemailer from 'nodemailer';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
 
 interface EmailFileInfo {
     clientEmail: string,
@@ -33,7 +30,6 @@ export class EmailService {
                 contentType: 'application/pdf',
                 encoding: 'base64'
             }]
-
         });
 
         console.log("Email send:", info.messageId);

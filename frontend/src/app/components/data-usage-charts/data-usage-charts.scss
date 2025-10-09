@@ -1,0 +1,30 @@
+.select-container {
+    position: relative;
+}
+
+.select-button-container {
+    position: relative;
+    top: 4px; // sube un poco el botón respecto a su contenedor
+    left: -20px; // muévelo a la izquierda respecto al contenedor
+    width: fit-content;
+}
+
+.add-data-button {
+    padding: 0.15rem 0.35rem !important;
+    font-size: 0.65rem !important;
+    height: 1.4rem !important;
+    min-width: 5.5rem;
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    color: inherit !important;
+    line-height: 0.9rem !important;
+}
+
+.add-data-button.p-button-danger {
+    color: #dc2626 !important;
+}
+
+.add-data-button.p-button-success {
+    color: #16a34a !important;
+}
