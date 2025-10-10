@@ -1,0 +1,32 @@
+.header-panel {
+    display: flex;
+    justify-content: center;
+}
+
+p-panel {
+    width: 100%;
+    max-width: 600px;
+    background-color: #e3f2fd; // Azul suave
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+    ::ng-deep .p-panel-header {
+        background-color: #2196f3; // Azul principal
+        color: white;
+        font-size: 1.3rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 8px 8px 0 0;
+
+        i {
+            font-size: 1.5rem;
+        }
+    }
+
+    ::ng-deep .p-panel-content {
+        display: none; // Oculta el contenido si no hay nada dentro del panel
+    }
+}

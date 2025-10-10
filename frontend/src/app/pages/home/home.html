@@ -1,14 +1,26 @@
 <div class="container">
-    <header>
-        <h1>Lista de Clientes</h1>
+    <p-menubar [model]="items" class="mb-3">
+    </p-menubar>
+
+    <header class="header-panel mb-3">
+        <p-panel>
+            <ng-template pTemplate="header">
+                <div class="header-content">
+                    <i class="pi pi-users"></i>
+                    <span>Lista de Clientes</span>
+                </div>
+            </ng-template>
+        </p-panel>
     </header>
 
-    <main>
-        <app-client-table></app-client-table>
 
+
+
+    <main class="mb-5">
+        <app-client-table></app-client-table>
     </main>
 
-    <footer>
-        <p>© 2025 Prueba de pie de página.</p>
+    <footer class="flex justify-content-between align-items-center px-4 py-3 border-top surface-100 text-sm">
+        <span>© 2025 Mi Aplicación</span>
     </footer>
 </div>

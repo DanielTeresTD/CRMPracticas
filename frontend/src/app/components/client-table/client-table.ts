@@ -93,6 +93,8 @@ export class ClientTable implements OnInit {
 
   public showEditClientDialog(): void {
     this.formMode = 'edit';
+    this.showChart = false;
+    this.cdr.detectChanges();
   }
 
   public showAddClientDialog(): void {
