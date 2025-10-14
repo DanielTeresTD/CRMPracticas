@@ -16,15 +16,18 @@
     @if (selectedPhoneNumber) {
     <!-- Button add usage data and load button to export charts to pdf -->
     <div class="select-button-container">
-        <p-button type="button" (onClick)="toggleAddForm()" [label]="showDataUsageForm ? 'Cancel' : 'Add Data Usage'"
-            [class]="showDataUsageForm ? 'p-button-danger' : 'p-button-success'"
-            class="add-data-button p-button-text" />
+        <div class="select-button-container">
+            @if (!showDataUsageForm) {
+            <p-button type="button" (onClick)="toggleAddForm()" label="Add Data Usage"
+                class="p-button-success p-button-sm add-data-button" />
+            }
+        </div>
+
     </div>
 
     <app-export-to-pdf [charts]="getChartsForPDF()" [clientDataUsage]="statisticsDataUsage" [client]="client"
         [selectedPhoneNumber]="selectedPhoneNumber">
     </app-export-to-pdf>
-
 
     @if (showDataUsageForm) {
     <div class="mt-4 p-4 border rounded bg-gray-50">
@@ -63,17 +66,13 @@
 
             <div class="flex gap-2 mt-4">
                 <!-- If form is invalid, disable the save button -->
-                <button type="submit" [disabled]="dataUsageForm?.invalid"
-                    class="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700">
+                <button type="submit" [disabled]="dataUsageForm?.invalid" class="p-button-guardar p-button-sm">
                     Save
                 </button>
 
-                <button type="button" (click)="onCancelAdd()"
-                    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                <button type="button" (click)="onCancelAdd()" class="p-button-agregar p-button-sm">
                     Cancel
                 </button>
-
-
             </div>
         </form>
     </div>

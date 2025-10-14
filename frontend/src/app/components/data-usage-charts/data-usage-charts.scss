@@ -4,8 +4,8 @@
 
 .select-button-container {
     position: relative;
-    top: 4px; // sube un poco el botón respecto a su contenedor
-    left: -20px; // muévelo a la izquierda respecto al contenedor
+    top: 4px;
+    left: -20px;
     width: fit-content;
 }
 
@@ -27,4 +27,55 @@
 
 .add-data-button.p-button-success {
     color: #16a34a !important;
+}
+
+.p-button-agregar {
+    @extend .add-data-button;
+    background-color: #007ad9 !important;
+    color: white !important;
+    border-radius: 4px;
+    padding: 0.4rem 1rem !important;
+    min-width: 6.5rem;
+    font-size: 0.85rem !important;
+    line-height: 1rem !important;
+    box-shadow: 0 2px 6px rgb(0 122 217 / 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.p-button-agregar:hover {
+    background-color: #005bb5 !important;
+    box-shadow: 0 4px 8px rgb(0 91 181 / 0.5);
+}
+
+.p-button-guardar {
+    @extend .add-data-button;
+    background-color: #ff6f00 !important;
+    color: white !important;
+    border-radius: 4px;
+    padding: 0.4rem 1rem !important;
+    min-width: 7rem;
+    font-size: 0.85rem !important;
+    line-height: 1rem !important;
+    box-shadow: 0 2px 6px rgb(255 111 0 / 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.p-button-guardar:hover {
+    background-color: #cc5800 !important;
+    box-shadow: 0 4px 8px rgb(204 88 0 / 0.5);
+}
+
+.p-button-guardar:disabled {
+    background-color: #d1d1d1 !important;
+    box-shadow: none !important;
+    color: #888 !important;
+    cursor: not-allowed;
+}
+
+.p-button-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    height: 2.2rem !important;
+    min-width: 6rem !important;
+    line-height: 1.2 !important;
 }
