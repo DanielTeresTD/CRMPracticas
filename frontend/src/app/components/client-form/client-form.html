@@ -12,8 +12,8 @@
 
     <!-- Mostrar teléfonos en modo vista -->
     @if (clientPhones && clientPhones.length > 0 && mode === 'view') {
-    <div class="flex flex-col">
-        <label class="text-sm font-semibold capitalize mb-1">Teléfonos</label>
+    <div class="flex flex-col input-group">
+        <label>Teléfonos</label>
         <ul class="list-disc list-inside pl-4">
             @for (phone of clientPhones; track phone) {
             <li>{{ phone.phoneNumber }}</li>
@@ -25,7 +25,7 @@
     <!-- Editar o agregar teléfonos -->
     @if (mode !== 'view') {
     <div class="form-section">
-        <label>Teléfonos:</label>
+        <label style="font-weight: bold;">Teléfonos:</label>
 
         @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
         <div class="phone-input-group flex items-center gap-2 mb-2">

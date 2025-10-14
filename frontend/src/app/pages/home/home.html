@@ -1,20 +1,13 @@
 <div class="container">
-    <p-menubar [model]="items" class="mb-3">
-    </p-menubar>
-
-    <header class="header-panel mb-3">
-        <p-panel>
-            <ng-template pTemplate="header">
-                <div class="header-content">
-                    <i class="pi pi-users"></i>
-                    <span>Lista de Clientes</span>
-                </div>
-            </ng-template>
-        </p-panel>
+    <header class="app-header">
+        <div class="app-title">
+            <span>CRM</span>
+        </div>
+        <div class="header-actions">
+            <button pButton label="Registrarse" class="p-button-text" (click)="goToRegister()"></button>
+            <button pButton label="Iniciar Sesión" class="p-button-primary" (click)="goToLogin()"></button>
+        </div>
     </header>
-
-
-
 
     <main class="mb-5">
         <app-client-table></app-client-table>
