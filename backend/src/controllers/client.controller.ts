@@ -10,7 +10,11 @@ export class ClientController {
             resp.data = await ClientService.getClients();
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 
@@ -25,7 +29,11 @@ export class ClientController {
             resp.data = await ClientService.getClientByID(clientID);
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 
@@ -41,7 +49,11 @@ export class ClientController {
             resp.data = await ClientService.addClient(newClient);
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 
@@ -58,7 +70,11 @@ export class ClientController {
             resp.data = await ClientService.updateClient(clientID, newClient);
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 
@@ -74,7 +90,11 @@ export class ClientController {
             resp.data = {};
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 

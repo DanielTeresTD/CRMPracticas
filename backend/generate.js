@@ -19,57 +19,60 @@ const kebabCase = moduleName.toLowerCase();
 const controllersDir = './src/controllers';
 const routesDir = './src/routes';
 const servicesDir = './src/services';
+const entityDir = './src/entities';
 
 // Crear directorios si no existen
-[controllersDir, routesDir, servicesDir].forEach(dir => {
+[controllersDir, routesDir, servicesDir, entityDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 });
 
-// ✅ Controller vacío con imports
+// Controller vacío con imports
 const controllerTemplate = `import { Request, Response } from 'express';
-import { ${pascalCase}Service } from '../services/${kebabCase}.service';
+import { GenResponse } from './genResponse';
+import { ${pascalCase}Service } from '../services/${camelCase}.service';
 
 export class ${pascalCase}Controller {
-    private ${camelCase}Service: ${pascalCase}Service;
-
-    constructor() {
-        this.${camelCase}Service = new ${pascalCase}Service();
-    }
-
-    // TODO: Add your controller methods here
 }
 `;
 
-// ✅ Service vacío
-const serviceTemplate = `export class ${pascalCase}Service {
-    // TODO: Add your service methods here
+const serviceTemplate = `import { DB } from '../config/typeorm';
+import { ${pascalCase} } from '../entities/${camelCase}.entity';
+
+export class ${pascalCase}Service {
 }
 `;
 
-// ✅ Routes vacío con imports
 const routesTemplate = `import { Router } from 'express';
-import { ${pascalCase}Controller } from '../controllers/${kebabCase}.controller';
+import { ${pascalCase}Controller } from '../controllers/${camelCase}.controller';
 
 const router = Router();
-const ${camelCase}Controller = new ${pascalCase}Controller();
-
-// TODO: Add your routes here
 
 export default router;
 `;
 
-// ✅ Generar archivos
-try {
-    fs.writeFileSync(path.join(controllersDir, `${kebabCase}.controller.ts`), controllerTemplate);
-    fs.writeFileSync(path.join(servicesDir, `${kebabCase}.service.ts`), serviceTemplate);
-    fs.writeFileSync(path.join(routesDir, `${kebabCase}.routes.ts`), routesTemplate);
+const entityTemplate = `import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-    console.log(`✅ Archivos generados para módulo '${moduleName}':`);
-    console.log(`   📁 ${controllersDir}/${kebabCase}.controller.ts`);
-    console.log(`   📁 ${servicesDir}/${kebabCase}.service.ts`);
-    console.log(`   📁 ${routesDir}/${kebabCase}.routes.ts`);
+@Entity({ name: "${kebabCase}" })
+export class ${pascalCase} {
+    @PrimaryGeneratedColumn({ name: "id" })
+    id!: number;
+
+}
+`
+
+try {
+    fs.writeFileSync(path.join(controllersDir, `${camelCase}.controller.ts`), controllerTemplate);
+    fs.writeFileSync(path.join(servicesDir, `${camelCase}.service.ts`), serviceTemplate);
+    fs.writeFileSync(path.join(routesDir, `${camelCase}.routes.ts`), routesTemplate);
+    fs.writeFileSync(path.join(entityDir, `${camelCase}.entity.ts`), entityTemplate);
+
+    console.log(`Archivos generados para módulo '${moduleName}':`);
+    console.log(`${controllersDir}/${camelCase}.controller.ts`);
+    console.log(`${servicesDir}/${camelCase}.service.ts`);
+    console.log(`${routesDir}/${camelCase}.routes.ts`);
+    console.log(`${entityDir}/${camelCase}.entity.ts`);
 } catch (error) {
-    console.error('❌ Error:', error);
+    console.error('Error:', error);
 }

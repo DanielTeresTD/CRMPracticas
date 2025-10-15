@@ -11,7 +11,11 @@ export class PhoneController {
             resp.data = await PhoneService.getPhonesFromClient(idClient);
             resp.code = 200;
         } catch (error) {
-            resp.msg = error as string;
+            if (error instanceof Error) {
+                resp.msg = error.message;
+            } else {
+                resp.msg = String(error);
+            }
             resp.code = 500;
         }
 
