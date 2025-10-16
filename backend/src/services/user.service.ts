@@ -1,34 +1,62 @@
 import { DB } from '../config/typeorm';
 import { User } from '../entities/user.entity';
 import * as crypto from "crypto";
-
-interface LoginData {
-    userName: string,
-    password: string
-}
+import { LogService } from '../services/log.service';
+import { Log } from '../entities/log.entity';
+import { DeepPartial } from 'typeorm';
+import jwt from 'jsonwebtoken';
 
 export class UserService {
 
-    public static async addUser(newUser: User): Promise<void> {
+    public static async registerUser(newUser: User): Promise<void> {
         newUser.password = this.encodeToSHA256Hex(newUser.password);
         const userRepository = DB.getRepository(User);
         await userRepository.save(newUser);
     }
 
-    public static async findUser(user: LoginData): Promise<void> {
-        user.password = this.encodeToSHA256Hex(user.password);
+    public static async login(user: DeepPartial<User>): Promise<{ token: string, user: Object }> {
+        user.password = this.encodeToSHA256Hex(user.password!);
         const userRepository = DB.getRepository(User);
 
         const userExist = await userRepository.findOne({
-            where: {
-                userName: user.userName,
-                password: user.password
+            where: { userName: user.userName },
+            relations: ["rol", "client"],
+            select: {
+                id: true,
+                userName: true,
+                password: true,
+                rol: true,
+                client: {
+                    id: true
+                }
             }
-        })
+        });
 
         if (!userExist) {
-            throw Error("User and password are incorrect");
+            throw Error("User with that name is not registered yet");
         }
+
+        const passwordCorrect = userExist.password === user.password;
+        const logData: DeepPartial<Log> = {
+            success: passwordCorrect,
+            userId: { id: userExist.id }
+        };
+
+        await LogService.add(logData);
+
+        if (!passwordCorrect) {
+            throw new Error("Password incorrect");
+        }
+
+        const userParsed = {
+            userId: userExist.id,
+            clientId: userExist.client?.id ?? null,
+            userName: userExist.userName,
+            rol: userExist.rol.type
+        };
+
+        const token = jwt.sign(userParsed, process.env.JWT_PSSWD!, { expiresIn: '1h' });
+        return { token, user: userParsed };
     }
 
 

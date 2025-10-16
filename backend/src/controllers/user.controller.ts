@@ -8,7 +8,7 @@ export class UserController {
         let resp = new GenResponse();
 
         try {
-            await UserService.addUser(req.body);
+            await UserService.registerUser(req.body);
             resp.code = 200;
         } catch (error) {
             if (error instanceof Error) {
@@ -26,7 +26,7 @@ export class UserController {
         let resp = new GenResponse();
 
         try {
-            await UserService.findUser(req.body);
+            resp.data = await UserService.login(req.body);
             resp.code = 200;
         } catch (error) {
             if (error instanceof Error) {

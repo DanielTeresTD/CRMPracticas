@@ -24,9 +24,8 @@ export class User {
     rol!: Role;
 
     @OneToOne(() => Client, {
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         nullable: true,
-        eager: true
     })
     @JoinColumn({ name: "dni", referencedColumnName: "dni" })
     client!: Client;

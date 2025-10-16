@@ -20,10 +20,11 @@ const requiredEnvVars: Array<string> = [
     "DB_NAME",
     "DB_PORT",
     "EMAIL_USER",
-    "EMAIL_PSSWD"
+    "EMAIL_PSSWD",
+    "JWT_PSSWD"
 ];
 
-const missingVars = requiredEnvVars.filter((varEnvName) => { !process.env[varEnvName] });
+const missingVars = requiredEnvVars.filter(varEnvName => !process.env[varEnvName]);
 
 if (missingVars.length > 0) {
     console.error("The following environment variables are missing:");
