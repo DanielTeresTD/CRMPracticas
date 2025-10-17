@@ -2,6 +2,8 @@ import express from 'express';
 import http from 'http';
 import { PORT } from './config';
 import IndexRoutes from '../routes/index.routes';
+import AuthRoutes from '../routes/user.routes';
+import authenticate from '../middleware/authenticate';
 import cors from 'cors';
 
 export class ExpressServer {
@@ -28,7 +30,10 @@ export class ExpressServer {
         this.app.use(express.json({ limit: '50mb' }));
         this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
         this.app.use(cors(this.corsOptions));
-        this.app.use('/api', IndexRoutes);
+        // Login and register without authentication
+        this.app.use('/auth', AuthRoutes);
+        // All api users with authentication
+        this.app.use('/api', authenticate, IndexRoutes);
 
 
         this.app.get('/', (req: express.Request, res: express.Response) => {

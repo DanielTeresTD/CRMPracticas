@@ -23,18 +23,21 @@ export class ClientController {
 
     public static async getClientByID(req: Request, res: Response) {
         let resp = new GenResponse();
-        const clientID: number = Number(req.params.id);
+        const clientId: number = Number(req.params.id);
+        const currentUser = res.locals.user;
+        let accessError = false;
 
         try {
-            resp.data = await ClientService.getClientByID(clientID);
+            if (currentUser.rol !== 'admin' && currentUser.clientId !== clientId) {
+                accessError = true;
+                throw Error('Acces denied: You can only view your own data');
+            }
+
+            resp.data = await ClientService.getClientByID(clientId);
             resp.code = 200;
         } catch (error) {
-            if (error instanceof Error) {
-                resp.msg = error.message;
-            } else {
-                resp.msg = String(error);
-            }
-            resp.code = 500;
+            resp.msg = error instanceof Error ? error.message : String(error);
+            resp.code = accessError ? 403 : 500;
         }
 
         res.json(resp);
@@ -49,11 +52,7 @@ export class ClientController {
             resp.data = await ClientService.addClient(newClient);
             resp.code = 200;
         } catch (error) {
-            if (error instanceof Error) {
-                resp.msg = error.message;
-            } else {
-                resp.msg = String(error);
-            }
+            resp.msg = error instanceof Error ? error.message : String(error);
             resp.code = 500;
         }
 

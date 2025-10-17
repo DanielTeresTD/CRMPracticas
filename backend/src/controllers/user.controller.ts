@@ -4,7 +4,7 @@ import { UserService } from '../services/user.service';
 
 export class UserController {
 
-    public static async add(req: Request, res: Response): Promise<Object> {
+    public static async register(req: Request, res: Response): Promise<Object> {
         let resp = new GenResponse();
 
         try {
