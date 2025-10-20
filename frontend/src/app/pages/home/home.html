@@ -3,10 +3,8 @@
         <div class="app-title">
             <span>CRM</span>
         </div>
-        <div class="header-actions">
-            <button pButton label="Registrarse" class="p-button-text" (click)="goToRegister()"></button>
-            <button pButton label="Iniciar Sesión" class="p-button-primary" (click)="goToLogin()"></button>
-        </div>
+        <button pButton label="Logout" icon="pi pi-sign-out" (click)="logout()"
+            class="p-button-sm p-button-danger"></button>
     </header>
 
     <main class="mb-5">

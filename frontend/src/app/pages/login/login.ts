@@ -1,11 +1,36 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { AuthService } from "../../services/authService.service";
+
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrl: './login.scss',
+  providers: [MessageService]
 })
 export class Login {
+  user = {
+    userName: null,
+    password: null
+  };
 
+  constructor(private messageService: MessageService,
+    private authService: AuthService
+  ) { }
+
+  onSubmit(user: any) {
+    this.authService.login(user).subscribe({
+      next: (response) => {
+        console.log(user);
+      },
+      error: (message) => {
+        console.log(message);
+      }
+    });
+  }
 }

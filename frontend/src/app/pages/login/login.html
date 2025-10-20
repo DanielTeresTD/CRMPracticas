@@ -1,1 +1,12 @@
-<p>login works!</p>
+<div class="align-center">
+    <h2>User Login</h2>
+    <form #myForm="ngForm" (ngSubmit)="onSubmit(myForm.value)">
+        <input placeholder="User name" type="text" name="userName" [(ngModel)]="user.userName" required />
+        <input placeholder="Password" type="password" name="password" [(ngModel)]="user.password" required />
+        <div class="btn-div">
+            <button type="submit" [disabled]="!myForm.valid" class="login-btn">
+                Login
+            </button>
+        </div>
+    </form>
+</div>

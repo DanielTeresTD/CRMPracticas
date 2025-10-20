@@ -18,7 +18,7 @@ export class ExpressServer {
         // Content-type it´s for json apps
         // x-request to use XMLHttpRequest
         // Accept to indicate response waited
-        allowedHeaders: ['Content-Type', 'X-Requested-With', 'Accept'],
+        allowedHeaders: ['Content-Type', 'X-Requested-With', 'Accept', 'Authorization'],
         optionsSuccessStatus: 200 // Indica code for success
     }
 
@@ -32,7 +32,7 @@ export class ExpressServer {
         this.app.use(cors(this.corsOptions));
         // Login and register without authentication
         this.app.use('/auth', AuthRoutes);
-        // All api users with authentication
+        // All api users with authentication token
         this.app.use('/api', authenticate, IndexRoutes);
 
 
