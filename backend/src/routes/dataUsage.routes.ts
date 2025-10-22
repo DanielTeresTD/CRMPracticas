@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { DataUsageController } from "../controllers/dataUsage.controller";
-import { checkRole } from "../middleware/checkRole";
+import { checkRole } from "../middlewares/checkRole";
 
 const router = Router();
 

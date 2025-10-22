@@ -3,7 +3,7 @@ import http from 'http';
 import { PORT } from './config';
 import IndexRoutes from '../routes/index.routes';
 import AuthRoutes from '../routes/user.routes';
-import authenticate from '../middleware/authenticate';
+import authenticate from '../middlewares/authenticate';
 import cors from 'cors';
 
 export class ExpressServer {

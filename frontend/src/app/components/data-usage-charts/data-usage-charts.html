@@ -17,7 +17,7 @@
     <!-- Button add usage data and load button to export charts to pdf -->
     <div class="select-button-container">
         <div class="select-button-container">
-            @if (!showDataUsageForm) {
+            @if (!showDataUsageForm && clientRole === "admin") {
             <p-button type="button" (onClick)="toggleAddForm()" label="Add Data Usage"
                 class="p-button-success p-button-sm add-data-button" />
             }

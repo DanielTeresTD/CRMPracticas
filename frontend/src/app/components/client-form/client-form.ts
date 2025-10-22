@@ -7,14 +7,17 @@ import {
   Validators, FormControl, FormArray
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ClientData, ClientPhone } from '../../interfaces/clients';
+import { ClientData, ClientPhone, UserData } from '../../interfaces/clients';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
+import { RoleService } from '../../services/role.service';
+import { AuthService } from '../../services/authService.service';
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule],
   templateUrl: './client-form.html',
   styleUrl: './client-form.scss'
 })
@@ -27,40 +30,104 @@ export class ClientForm implements OnInit, OnChanges {
   @Output() formSubmitted = new EventEmitter<any>();
 
   // Reactive form in TS.
-  public clientForm!: FormGroup;
+  public userForm!: FormGroup;
+  public clientForm?: FormGroup;
   public fieldKeys: string[] = [];
+  public fieldKeysClient: string[] = [];
+  public roles?: any[];
+  public user: UserData = {
+    userName: '',
+    password: '',
+    dni: '',
+    role: '',
+    client: {
+      name: '',
+      address: '',
+      email: '',
+      dni: '',
+      phoneNums: []
+    }
+  };
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder, private role: RoleService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    this.buildForm();
+    this.role.getRoles().subscribe({
+      next: (response) => {
+        console.log(response);
+        this.roles = response.data.map((obj: any) => ({ label: obj.type, value: obj.id }));
+      }
+    });
+
+
+    if (this.client) {
+      this.user.client = this.client;
+    }
+
+    this.buildUserForm();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['client'] && this.client) {
-      this.buildForm();
+      this.user.client = this.client;
+      this.buildUserForm();
     }
   }
 
   // Build dynamic form group with every form control or form array based in the data 
   // provided by client atr.
-  private buildForm(): void {
-    // Empty object where each key will be the keys in client atr and it will 
-    // create values of type FormControl or FormArray.
-    const controls: { [key: string]: FormControl | FormArray } = {};
-    // this.client ?? {} --> if client is null, create an empty object.
-    // Get all keys names (fields) of client object except phoneNums field
-    this.fieldKeys = Object.keys(this.client ?? {}).filter(key => key !== 'phoneNums' && key !== 'id');
+  private async buildUserForm(): Promise<void> {
+    let userData: any = this.user ?? {};
 
-    this.fieldKeys.forEach((key) => {
-      // Get value of key field and tell TS 'key' is from ClientData interface
-      const value = this.client[key as keyof ClientData] ?? '';
-      // First value is the config object. Disabled forbid add or edition when it´s in view mode.
-      controls[key] = new FormControl(
-        { value, disabled: this.mode === 'view' },
-        Validators.required // make this field obligatory to fill
-      );
+    // Si estás en modo 'edit', obtener los datos del usuario por dni
+    if (this.mode === 'edit' && this.client?.dni) {
+      try {
+        const response = await this.authService.getUserData(this.client.dni);
+        userData = {
+          ...response,
+          dni: this.client.dni // Asegura que el dni esté presente
+        };
+      } catch (error) {
+        console.error('Error al obtener datos del usuario por dni:', error);
+      }
+    }
+
+    this.userForm = this.fb.group({
+      userName: [{ value: userData.userName || '', disabled: this.mode === 'view' }, Validators.required],
+      password: [{ value: userData.password || '', disabled: this.mode === 'view' }, Validators.required],
+      dni: [{ value: userData.dni || '', disabled: this.mode === 'view' }, Validators.required],
+      role: [{ value: userData.role || '', disabled: this.mode === 'view' }, Validators.required]
     });
+
+    // Si cambia el rol, mostrar u ocultar formulario cliente
+    this.userForm.get('role')?.valueChanges.subscribe((roleValue: number) => {
+      if (roleValue === 2) {
+        this.buildClientForm();
+      } else {
+        this.clientForm = undefined;
+      }
+    });
+
+    // Si ya hay un rol y es 'user', construir formulario cliente
+    if (userData.role === 'user' || userData.role === 2) {
+      this.buildClientForm();
+    } else {
+      this.clientForm = undefined;
+    }
+  }
+
+
+
+  private buildClientForm(): void {
+    const client = this.user?.client ?? {};
+
+    const controls: { [key: string]: FormControl | FormArray } = {
+      name: new FormControl({ value: client.name || '', disabled: this.mode === 'view' }, Validators.required),
+      address: new FormControl({ value: client.address || '', disabled: this.mode === 'view' }, Validators.required),
+      email: new FormControl({ value: client.email || '', disabled: this.mode === 'view' }, [Validators.required, Validators.email]),
+    };
 
     // Edit or add phones
     if (this.mode !== 'view') {
@@ -83,10 +150,11 @@ export class ClientForm implements OnInit, OnChanges {
     }
 
     this.clientForm = this.fb.group(controls);
+    this.fieldKeysClient = Object.keys(this.clientForm.controls);
   }
 
   public get phoneNums(): FormArray {
-    return this.clientForm.get('phoneNums') as FormArray;
+    return this.clientForm?.get('phoneNums') as FormArray;
   }
 
   public addPhone(): void {
@@ -103,12 +171,24 @@ export class ClientForm implements OnInit, OnChanges {
 
   public onSubmit(): void {
     // If an error ocurred, force all fields to be marked as touched (used/interacted)
-    if (this.clientForm.invalid) {
-      this.clientForm.markAllAsTouched();
+    if (this.userForm.invalid || (this.clientForm && this.clientForm.invalid)) {
+      this.userForm.markAllAsTouched();
+      this.clientForm?.markAllAsTouched();
       return;
     }
 
-    const formData = this.clientForm.getRawValue();
+    const userData = this.userForm.getRawValue();
+    let formData = { ...userData };
+
+    if (userData.role === 2 && this.clientForm) {
+      formData = {
+        ...formData,
+        client: this.clientForm.getRawValue()
+      };
+
+      formData.client.dni = formData.dni;
+    }
+
     // Send the form values to parent component.
     this.formSubmitted.emit(formData);
     // Close form and dialog.

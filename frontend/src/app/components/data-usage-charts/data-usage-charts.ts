@@ -34,6 +34,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
   // Only used to send to pdf the client data
   @Input() public client?: ClientData;
   @Input() public clientPhones: ClientPhone[] = [];
+  @Input() public clientRole?: string;
   // Save yearly and monthly data
   public statisticsDataUsage?: StatisticsDataUsage;
   public statisticsDataUsageMonthly?: StatisticsDataUsage;

@@ -32,8 +32,8 @@ export class ClientController {
                 accessError = true;
                 throw Error('Acces denied: You can only view your own data');
             }
-
-            resp.data = await ClientService.getClientByID(clientId);
+            // Have same structure as getClients make use of DRY on front
+            resp.data = [await ClientService.getClientByID(clientId)];
             resp.code = 200;
         } catch (error) {
             resp.msg = error instanceof Error ? error.message : String(error);
@@ -47,7 +47,8 @@ export class ClientController {
         let resp = new GenResponse();
 
         try {
-            const newClient = req.body
+            const newClient = req.body;
+            console.log(newClient);
 
             resp.data = await ClientService.addClient(newClient);
             resp.code = 200;

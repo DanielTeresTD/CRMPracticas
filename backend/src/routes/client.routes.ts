@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ClientController } from "../controllers/client.controller";
-import { checkRole } from "../middleware/checkRole";
+import { checkRole } from "../middlewares/checkRole";
 
 const router = Router()
 

@@ -5,16 +5,37 @@ import { GenResponse } from '../interfaces/genResponse';
 import { Observable } from 'rxjs'; // Handle async data streams
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ClientService } from './client.service';
+import { UserData } from '../interfaces/clients';
 
 // Mark class avaliable to be provided and injected as dependency
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private readonly authURL = enviroment.authURL;
+    private readonly apiURL = enviroment.apiURL;
 
     constructor(private http: HttpClient, private router: Router) { }
 
-    public register(userData: any): Observable<GenResponse> {
-        return this.http.post<GenResponse>(`${this.authURL}/register`, userData);
+    public register(userData: UserData): Observable<GenResponse> {
+        if (userData.client) {
+            delete userData.client;
+        }
+
+        console.log("Enviando al register: ", userData);
+        return this.http.post<GenResponse>(`${this.apiURL}/register`, userData);
+    }
+
+    public updateRegister(userData: UserData): Observable<GenResponse> {
+        if (userData.client) {
+            delete userData.client;
+        }
+
+        console.log("Enviando al register: ", userData);
+        return this.http.patch<GenResponse>(`${this.apiURL}/register`, userData);
+    }
+
+    public getUserData(dni: string): Observable<GenResponse> {
+        return this.http.get<GenResponse>(`${this.apiURL}/register-one-user/${dni}`);
     }
 
     public login(userData: any): Observable<GenResponse> {

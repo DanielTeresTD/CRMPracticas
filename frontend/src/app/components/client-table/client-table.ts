@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ClientData, ClientPhone } from '../../interfaces/clients';
+import { ClientData, ClientPhone, UserData } from '../../interfaces/clients';
 import { RouterModule } from '@angular/router';
 
 import { ClientService } from '../../services/client.service';
@@ -14,16 +14,34 @@ import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { RoleService } from '../../services/role.service';
+import { AuthService } from '../../services/authService.service';
 
 interface Column {
   field: string;
   header: string;
 }
 
-const EMPTY_CLIENT: ClientData = {
-  name: '',
-  address: '',
-  phoneNums: []
+interface NewUser {
+  userName: string,
+  password: string,
+  dni: string,
+  role: string
+}
+
+const EMPTY_USER: UserData = {
+  userName: '',
+  password: '',
+  dni: '',
+  role: '',
+  client: {
+    name: '',
+    address: '',
+    email: '',
+    dni: '',
+    phoneNums: []
+  }
 };
 
 @Component({
@@ -31,7 +49,7 @@ const EMPTY_CLIENT: ClientData = {
   imports: [
     CommonModule, RouterModule, TableModule, TagModule,
     RatingModule, ButtonModule, ClientForm, DialogModule,
-    DataUsageCharts
+    DataUsageCharts, FormsModule
   ],
   templateUrl: './client-table.html',
   styleUrl: './client-table.scss'
@@ -49,10 +67,18 @@ export class ClientTable implements OnInit {
   public selectedClient?: ClientData;
   public showChart: boolean = false;
   public formMode: 'view' | 'edit' | 'add' = 'view';
+  public newUser: NewUser = {
+    userName: '',
+    password: '',
+    dni: '',
+    role: ''
+  };
+  public roles?: any[];
 
   constructor(
     private clientService: ClientService,
     private phoneService: PhoneService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -61,7 +87,14 @@ export class ClientTable implements OnInit {
   }
 
   public getClients(): void {
-    this.clientService.getClients().subscribe((data) => {
+    const rol = this.clientRol();
+    const clientId = Number(JSON.parse(localStorage.getItem("user") || '{}')?.clientId);
+
+    const client_function = rol === "admin" ?
+      this.clientService.getClients()
+      : this.clientService.getClientByID(Number(clientId));
+
+    client_function.subscribe((data) => {
       this.clients = data.data;
       this.cdr.detectChanges();
     });
@@ -100,23 +133,33 @@ export class ClientTable implements OnInit {
   public showAddClientDialog(): void {
     // Used to put dynamicly each field in the form. 
     // ... is used to create a new object with the same properties of cte EMPTY_CLIENT
-    this.selectedClient = { ...EMPTY_CLIENT };
+    this.selectedClient = { ...EMPTY_USER };
     this.formMode = 'add';
     this.clientPhones = [];
     this.showDialog = true;
   }
 
   // Retrieve form object from client-form componente and call add or edit (depends on the mode it is)
-  public onFormSubmitted(formData: ClientData): void {
+  public onFormSubmitted(formData: UserData): void {
     if (this.formMode === 'add') {
-      this.clientService.addClient(formData).subscribe(() => {
+      this.clientService.addClient(formData.client!).subscribe(() => {
         this.getClients();
         this.closeDialog();
       });
+
+      this.authService.register(formData).subscribe(() => {
+        console.log("User created");
+      });
     } else if (this.formMode === 'edit') {
-      this.clientService.updateClient(Number(this.selectedClient?.id), formData).subscribe(() => {
-        this.getClients();
-        this.closeDialog();
+      if (formData.client) {
+        this.clientService.updateClient(Number(this.selectedClient?.id), formData.client!).subscribe(() => {
+          this.getClients();
+          this.closeDialog();
+        });
+      }
+
+      this.authService.updateRegister(formData).subscribe(() => {
+        console.log("User info updated");
       });
     }
   }
@@ -130,5 +173,9 @@ export class ClientTable implements OnInit {
     this.clientPhones = [];
     this.showDialog = false;
     this.showChart = false;
+  }
+
+  public clientRol(): string {
+    return JSON.parse(localStorage.getItem("user") || '{}')?.rol;
   }
 }

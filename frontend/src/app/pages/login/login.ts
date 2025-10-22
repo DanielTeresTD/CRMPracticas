@@ -24,13 +24,6 @@ export class Login {
   ) { }
 
   onSubmit(user: any) {
-    this.authService.login(user).subscribe({
-      next: (response) => {
-        console.log(user);
-      },
-      error: (message) => {
-        console.log(message);
-      }
-    });
+    this.authService.login(user).subscribe();
   }
 }

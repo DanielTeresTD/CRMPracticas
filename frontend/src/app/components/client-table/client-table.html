@@ -1,7 +1,6 @@
 <div class="table">
     <p-table [columns]="cols" [value]="clients" stripedRows [paginator]="true" [rows]="5"
-        [tableStyle]="{ 'max-width': '900px', 'margin': '0 auto' }" [rowsPerPageOptions]="[5, 10, 15]">>
-
+        [tableStyle]="{ 'max-width': '900px', 'margin': '0 auto' }" [rowsPerPageOptions]="[5, 10, 15]">
         <ng-template #header let-columns>
             <tr>
                 @for (col of columns; track col.field) {
@@ -29,22 +28,23 @@
         </ng-template>
 
         <ng-template #footer>
+            @if (clientRol() === 'admin') {
             <tr>
                 <td [attr.colspan]="cols.length" style="text-align: center;">
                     <button pButton type="button" icon="pi pi-plus" class="p-button-rounded p-button-text"
                         style="color: seagreen; font-size: 1.5rem;" (click)="showAddClientDialog()"></button>
                 </td>
             </tr>
+            }
             <tr>
                 <td colspan="6">In total there are {{ clients ? clients.length : 0 }} clients.</td>
             </tr>
         </ng-template>
     </p-table>
 
-    <p-dialog [(visible)]="showDialog" [modal]="true" [closable]="false" [style]="showChart ? 
-  { width: '1100px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' } : 
-  { width: '500px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
-        [contentStyle]="{ padding: '2rem' }" [dismissableMask]="true"
+    <p-dialog [(visible)]="showDialog" [modal]="true" [closable]="false"
+        [style]="{ width: showChart ? '1100px' : '600px', minHeight: '700px', backgroundColor: 'white', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', borderRadius: '8px' }"
+        [contentStyle]="{ padding: '2rem', overflow: 'auto' }" [dismissableMask]="true"
         [breakpoints]="{ '960px': '90vw', '640px': '95vw' }" [baseZIndex]="10000" (onHide)="closeDialog()">
 
         <ng-template #header>
@@ -55,36 +55,38 @@
                 <span>Detalles del Cliente</span>
                 }
 
-                <!-- Show edit and delete button when it´s in view mode -->
                 <div [class.buttons-chart-active]="showChart" class="flex items-center gap-2 ml-auto">
+                    @if (clientRol() === 'admin') {
                     <button pButton type="button" icon="pi pi-user-edit" class="p-button-rounded p-button-text"
                         style="color: seagreen;" (click)="showEditClientDialog()" aria-label="Editar cliente"></button>
 
                     <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text"
                         style="color: red;" (click)="removeClient()" aria-label="Eliminar cliente"></button>
+                    }
 
                     <button pButton type="button" icon="pi pi-chart-bar" class="p-button-rounded p-button-text"
                         style="color: rgb(170, 0, 255);" (click)="showCharts()" aria-label="Mostrar gráfica"></button>
                 </div>
-
             </div>
         </ng-template>
 
         @switch (formMode) {
         @case ('view') {
         @if (showChart) {
-        <app-data-usage-charts [client]="selectedClient!" [clientPhones]="clientPhones"></app-data-usage-charts>
+        <app-data-usage-charts [client]="selectedClient!" [clientPhones]="clientPhones"
+            [clientRole]="clientRol()"></app-data-usage-charts>
         } @else {
         <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="clientPhones"
             [onClose]="closeDialog.bind(this)"></app-client-form>
         }
-
         }
 
         @case ('add') {
+
         <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="[]"
             [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
         </app-client-form>
+
         }
 
 
@@ -102,6 +104,4 @@
             </div>
         </ng-template>
     </p-dialog>
-
-
 </div>

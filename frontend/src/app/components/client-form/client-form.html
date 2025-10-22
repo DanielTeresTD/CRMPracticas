@@ -1,58 +1,107 @@
-<!-- FormGroup directive binds to the FormGroup created in the .ts -->
-<form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+@if (mode === 'view' && client) {
+<div class="flex flex-col gap-4">
 
-    @for (key of fieldKeys; track key) {
     <div class="input-group">
-        <label for="{{ key }}">{{ key | titlecase }}</label>
-        <!-- Input con pInputText en input nativo -->
-        <input id="{{ key }}" [formControlName]="key" [attr.readonly]="key === 'id' || mode === 'view' ? true : null"
-            [type]="getFieldType(key)" pInputText placeholder="Escribe {{ key | lowercase }}" />
+        <label for="name">Nombre</label>
+        <input id="name" pInputText [readonly]="true" [value]="client.name" />
     </div>
+
+    <div class="input-group">
+        <label for="email">Email</label>
+        <input id="email" pInputText [readonly]="true" [value]="client.email" />
+    </div>
+
+    <div class="input-group">
+        <label for="address">Dirección</label>
+        <input id="address" pInputText [readonly]="true" [value]="client.address" />
+    </div>
+
+    <div class="input-group">
+        <label for="dni">DNI</label>
+        <input id="dni" pInputText [readonly]="true" [value]="client.dni" />
+    </div>
+
+    @if (clientPhones && clientPhones.length > 0) { <div class="flex flex-col input-group"> <label>Teléfonos</label>
+        <ul class="list-disc list-inside pl-4"> @for (phone of clientPhones; track phone) { <li>{{ phone.phoneNumber }}
+            </li> } </ul>
+    </div> }
+
+</div>
+}
+
+
+
+@if (mode !== 'view') {
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+    <!-- Campos usuario -->
+    <div class="input-group">
+        <label for="userName">UserName</label>
+        <input id="userName" formControlName="userName" type="text" pInputText placeholder="Escribe username" />
+    </div>
+
+    <div class="input-group">
+        <label for="password">Password</label>
+        <input id="password" formControlName="password" type="password" pInputText placeholder="Escribe password" />
+    </div>
+
+    <div class="input-group">
+        <label for="dni">DNI</label>
+        <input id="dni" formControlName="dni" type="text" pInputText placeholder="Escribe dni" />
+    </div>
+
+    <div class="input-group">
+        <label for="role">Role</label>
+        <p-select [options]="roles" formControlName="role" inputId="role" placeholder="Selecciona un rol"
+            appendTo="body" optionValue="value" optionLabel="label">
+        </p-select>
+    </div>
+
+    @if (userForm.get('role')?.value !== 2) {
+    <button pButton type="submit" class="p-button-guardar">
+        {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir Usuario' }}
+    </button>
     }
 
-    <!-- Mostrar teléfonos en modo vista -->
-    @if (clientPhones && clientPhones.length > 0 && mode === 'view') {
-    <div class="flex flex-col input-group">
-        <label>Teléfonos</label>
-        <ul class="list-disc list-inside pl-4">
-            @for (phone of clientPhones; track phone) {
-            <li>{{ phone.phoneNumber }}</li>
+    <!-- Mostrar clientForm solo si role === 2 (user) -->
+    @if (userForm.get('role')?.value === 2 && clientForm) {
+    <div [formGroup]="clientForm" class="flex flex-col gap-4">
+
+        @for (key of fieldKeysClient; track key) {
+        <div class="input-group">
+            @if (key !== "phoneNums") {
+            <label for="{{ key }}">{{ key | titlecase }}</label>
+            <input id="{{ key }}" [formControlName]="key" [type]="getFieldType(key)" pInputText
+                placeholder="Escribe {{ key | lowercase }}" />
             }
-        </ul>
-    </div>
-    }
-
-    <!-- Editar o agregar teléfonos -->
-    @if (mode !== 'view') {
-    <div class="form-section">
-        <label style="font-weight: bold;">Teléfonos:</label>
-
-        @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
-        <div class="phone-input-group flex items-center gap-2 mb-2">
-            <!-- Campo oculto para phoneID -->
-            <input type="hidden" [formControl]="getPhoneIDControl(i)" />
-
-            <!-- Input para phoneNumber -->
-            <input type="text" pInputText [formControl]="getPhoneNumberControl(i)" placeholder="Número de teléfono"
-                class="phone-input p-inputtext-sm"
-                [class.p-invalid]="getPhoneNumberControl(i).invalid && getPhoneNumberControl(i).touched" />
-
-            <!-- Botón eliminar teléfono -->
-            <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm"
-                (click)="removePhone(i)" [disabled]="phoneNums.length <= 1" aria-label="Eliminar teléfono"></button>
         </div>
         }
 
-        <!-- Botón agregar teléfono -->
-        <button pButton type="button" icon="pi pi-plus" iconPos="left" class="p-button-agregar" (click)="addPhone()"
-            aria-label="Agregar teléfono">
-            Agregar teléfono
+        <div class="form-section">
+            <label style="font-weight: bold;">Teléfonos:</label>
+
+            @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
+            <div class="phone-input-group flex items-center gap-2 mb-2">
+                <input type="hidden" [formControl]="getPhoneIDControl(i)" />
+                <input type="text" pInputText [formControl]="getPhoneNumberControl(i)" placeholder="Número de teléfono"
+                    class="phone-input p-inputtext-sm"
+                    [class.p-invalid]="getPhoneNumberControl(i).invalid && getPhoneNumberControl(i).touched" />
+                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm"
+                    (click)="removePhone(i)" [disabled]="phoneNums.length <= 1" aria-label="Eliminar teléfono">
+                </button>
+            </div>
+            }
+
+            <button pButton type="button" icon="pi pi-plus" iconPos="left" class="p-button-agregar" (click)="addPhone()"
+                aria-label="Agregar teléfono">
+                Agregar teléfono
+            </button>
+        </div>
+
+        <button pButton type="submit" class="p-button-guardar">
+            {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir Usuario' }}
         </button>
     </div>
-
-    <!-- Botón submit -->
-    <button pButton type="submit" class="p-button-guardar">
-        {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir cliente' }}
-    </button>
     }
 </form>
+}

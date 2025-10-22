@@ -8,10 +8,46 @@ import jwt from 'jsonwebtoken';
 
 export class UserService {
 
-    public static async registerUser(newUser: User): Promise<void> {
-        newUser.password = this.encodeToSHA256Hex(newUser.password);
+    public static async registerUser(newUser: any): Promise<User> {
+        newUser.password = this.encodeToSHA256Hex(newUser.password!);
+        const userFormat: DeepPartial<User> = {
+            userName: newUser.userName,
+            password: newUser.password,
+            client: {
+                dni: newUser.dni
+            },
+            rol: {
+                id: newUser.role
+            }
+        }
+
+        console.log("usuario formateado", userFormat);
         const userRepository = DB.getRepository(User);
-        await userRepository.save(newUser);
+        return await userRepository.save(userFormat);
+    }
+
+    public static async updateRegister(newUser: any): Promise<User> {
+        newUser.password = this.encodeToSHA256Hex(newUser.password!);
+        const userRepository = DB.getRepository(User);
+        const oldUser = await this.findUserByDNI(newUser.dni);
+
+        if (!oldUser) {
+            throw Error("No user was found");
+        }
+
+        const userFormat: DeepPartial<User> = {
+            id: oldUser.id,
+            userName: newUser.userName,
+            password: newUser.password,
+            client: {
+                dni: newUser.dni
+            },
+            rol: {
+                id: newUser.role
+            }
+        }
+
+        return await userRepository.save(userFormat);
     }
 
     public static async login(user: DeepPartial<User>): Promise<{ token: string, user: Object }> {
@@ -63,6 +99,19 @@ export class UserService {
     // Encode text using sha256 and return in hex format.
     private static encodeToSHA256Hex(text: string): string {
         return crypto.createHash('sha256').update(text).digest('hex');
+    }
+
+    public static async findUserByDNI(dniU: string): Promise<User | null> {
+        const userRepository = DB.getRepository(User);
+        return await userRepository.findOne({
+            where: {
+                client: {
+                    dni: dniU
+                }
+            },
+
+            relations: ['client']
+        });
     }
 
 }

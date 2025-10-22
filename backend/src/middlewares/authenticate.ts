@@ -18,7 +18,6 @@ export default async function authenticate(req: Request, res: Response,
     }
 
     try {
-        console.log(token);
         const decoded = jwt.verify(token, process.env.JWT_PSSWD!);
         res.locals.user = decoded;
         next();
