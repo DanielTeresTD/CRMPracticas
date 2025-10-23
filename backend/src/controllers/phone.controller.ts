@@ -10,7 +10,7 @@ export class PhoneController {
         let accessError = false;
 
         try {
-            if (currentUser.rol !== 'admin' && currentUser.clientId !== clientId) {
+            if (currentUser.role !== 'admin' && currentUser.clientId !== clientId) {
                 accessError = true;
                 throw Error('Acces denied: You can only view your own data');
             }

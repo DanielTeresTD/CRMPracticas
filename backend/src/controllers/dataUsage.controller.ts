@@ -65,7 +65,7 @@ export class DataUsageController {
         try {
             const userIdOfPhone = await PhoneService.getClientIdByPhone(phoneId);
 
-            if (currentUser.rol !== 'admin' && currentUser.clientId !== userIdOfPhone) {
+            if (currentUser.role !== 'admin' && currentUser.clientId !== userIdOfPhone) {
                 accessError = true;
                 throw Error('Acces denied: You can not get other phone data appart of yours');
             }
@@ -91,7 +91,7 @@ export class DataUsageController {
         try {
             const userIdOfPhone = await PhoneService.getClientIdByPhone(phoneId);
 
-            if (currentUser.rol !== 'admin' && currentUser.clientId !== userIdOfPhone) {
+            if (currentUser.role !== 'admin' && currentUser.clientId !== userIdOfPhone) {
                 accessError = true;
                 throw Error('Acces denied: You can not get other phone data appart of yours');
             }

@@ -46,7 +46,7 @@ export class AuthService {
                 const user = response.data.user;
                 localStorage.setItem('user', JSON.stringify(user));
 
-                if (user && user.rol) {
+                if (user && user.role) {
                     this.router.navigate(['/home']);
                 } else {
                     this.router.navigate(['']);

@@ -87,10 +87,10 @@ export class ClientTable implements OnInit {
   }
 
   public getClients(): void {
-    const rol = this.clientRol();
+    const role = this.clientRol();
     const clientId = Number(JSON.parse(localStorage.getItem("user") || '{}')?.clientId);
 
-    const client_function = rol === "admin" ?
+    const client_function = role === "admin" ?
       this.clientService.getClients()
       : this.clientService.getClientByID(Number(clientId));
 
@@ -176,6 +176,6 @@ export class ClientTable implements OnInit {
   }
 
   public clientRol(): string {
-    return JSON.parse(localStorage.getItem("user") || '{}')?.rol;
+    return JSON.parse(localStorage.getItem("user") || '{}')?.role;
   }
 }
