@@ -139,6 +139,11 @@ export class ClientTable implements OnInit {
     this.showDialog = true;
   }
 
+  public showCharts(): void {
+    this.showChart = true;
+    this.formMode = 'view';
+  }
+
   // Retrieve form object from client-form componente and call add or edit (depends on the mode it is)
   public onFormSubmitted(formData: UserData): void {
     if (this.formMode === 'add') {
@@ -162,10 +167,6 @@ export class ClientTable implements OnInit {
         console.log("User info updated");
       });
     }
-  }
-
-  public showCharts(): void {
-    this.showChart = true;
   }
 
   public closeDialog(): void {
