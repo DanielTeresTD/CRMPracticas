@@ -90,11 +90,9 @@ export class ClientForm implements OnInit, OnChanges {
       role: [{ value: userData.role || '', disabled: this.mode === 'view' }, Validators.required]
     });
 
-    // Si estás en modo 'edit', obtener los datos del usuario por dni
     if (this.mode === 'edit' && this.client?.dni) {
       this.authService.getUserData(this.client.dni).subscribe({
         next: (response) => {
-          console.log(response);
           userData = {
             userName: response.data.userName,
             role: response.data.roleId,
@@ -116,16 +114,15 @@ export class ClientForm implements OnInit, OnChanges {
 
     }
 
-    // Si cambia el rol, mostrar u ocultar formulario cliente
+    // If role is not user, don´t show client form
     this.userForm.get('role')?.valueChanges.subscribe((roleValue: number) => {
-      if (roleValue === 2) {
+      if (roleValue === 2 || this.mode === 'edit') {
         this.buildClientForm();
       } else {
         this.clientForm = undefined;
       }
     });
 
-    // Si ya hay un rol y es 'user', construir formulario cliente
     if (userData.role === 'user' || userData.role === 2) {
       this.buildClientForm();
     } else {

@@ -82,11 +82,9 @@
         }
 
         @case ('add') {
-
         <app-client-form [client]="selectedClient!" [mode]="formMode" [clientPhones]="[]"
             [onClose]="closeDialog.bind(this)" (formSubmitted)="onFormSubmitted($event)">
         </app-client-form>
-
         }
 
 

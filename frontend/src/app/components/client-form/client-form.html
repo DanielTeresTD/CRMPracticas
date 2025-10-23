@@ -61,14 +61,13 @@
         </p-select>
     </div>
 
-    @if (userForm.get('role')?.value !== 2) {
+    @if (userForm.get('role')?.value !== 2 && mode !== 'edit') {
     <button pButton type="submit" class="p-button-guardar">
-        {{ mode === 'edit' ? 'Save changes' : 'Add user' }}
+        {{ mode === 'add' ? 'Add user' : 'Save changes' }}
     </button>
     }
 
-    <!-- Mostrar clientForm solo si role === 2 (user) -->
-    @if (userForm.get('role')?.value === 2 && clientForm) {
+    @if (clientForm) {
     <div [formGroup]="clientForm" class="flex flex-col gap-4">
 
         @for (key of fieldKeysClient; track key) {
