@@ -49,7 +49,9 @@ export class UserController {
                 throw Error("Not DNI was found");
             }
 
-            resp.data = await UserService.findUserByDNI(dni);
+            resp.data = await UserService.findUserByDNI(dni).then((val) => {
+                return { userName: val?.userName, roleId: val?.role?.id }
+            });
             resp.code = 200;
         } catch (error) {
             if (error instanceof Error) {

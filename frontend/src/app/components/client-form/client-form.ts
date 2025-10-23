@@ -54,6 +54,8 @@ export class ClientForm implements OnInit, OnChanges {
   ) { }
 
   ngOnInit(): void {
+    this.clientForm = this.fb.group({});
+    this.userForm = this.fb.group({});
     this.role.getRoles().subscribe({
       next: (response) => {
         console.log(response);
@@ -70,7 +72,7 @@ export class ClientForm implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['client'] && this.client) {
+    if (changes['client'] && this.client || changes['mode']) {
       this.user.client = this.client;
       this.buildUserForm();
     }
@@ -81,25 +83,38 @@ export class ClientForm implements OnInit, OnChanges {
   private async buildUserForm(): Promise<void> {
     let userData: any = this.user ?? {};
 
-    // Si estás en modo 'edit', obtener los datos del usuario por dni
-    if (this.mode === 'edit' && this.client?.dni) {
-      try {
-        const response = await this.authService.getUserData(this.client.dni);
-        userData = {
-          ...response,
-          dni: this.client.dni // Asegura que el dni esté presente
-        };
-      } catch (error) {
-        console.error('Error al obtener datos del usuario por dni:', error);
-      }
-    }
-
     this.userForm = this.fb.group({
       userName: [{ value: userData.userName || '', disabled: this.mode === 'view' }, Validators.required],
       password: [{ value: userData.password || '', disabled: this.mode === 'view' }, Validators.required],
       dni: [{ value: userData.dni || '', disabled: this.mode === 'view' }, Validators.required],
       role: [{ value: userData.role || '', disabled: this.mode === 'view' }, Validators.required]
     });
+
+    // Si estás en modo 'edit', obtener los datos del usuario por dni
+    if (this.mode === 'edit' && this.client?.dni) {
+      this.authService.getUserData(this.client.dni).subscribe({
+        next: (response) => {
+          console.log(response);
+          userData = {
+            userName: response.data.userName,
+            role: response.data.roleId,
+            dni: this.client.dni
+          };
+
+          this.userForm.patchValue({
+            userName: userData.userName || '',
+            password: '',
+            dni: userData.dni || '',
+            role: userData.role || ''
+          });
+        },
+        error: (error) => {
+          console.error('Error al obtener datos del usuario por dni:', error);
+        }
+      });
+
+
+    }
 
     // Si cambia el rol, mostrar u ocultar formulario cliente
     this.userForm.get('role')?.valueChanges.subscribe((roleValue: number) => {

@@ -20,8 +20,8 @@ export class User {
     password!: string;
 
     @ManyToOne(() => Role, (userRole) => userRole.user)
-    @JoinColumn({ name: "rolId" })
-    rol!: Role;
+    @JoinColumn({ name: "roleId" })
+    role!: Role;
 
     @OneToOne(() => Client, {
         onDelete: 'SET NULL',

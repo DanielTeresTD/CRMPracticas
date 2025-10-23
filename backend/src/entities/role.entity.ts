@@ -10,6 +10,6 @@ export class Role {
     @Column("text", { name: "type" })
     type!: string;
 
-    @OneToMany(() => User, (user) => user.rol)
+    @OneToMany(() => User, (user) => user.role)
     user!: User[];
 }

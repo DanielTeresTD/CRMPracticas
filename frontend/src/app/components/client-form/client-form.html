@@ -37,29 +37,33 @@
     <!-- Campos usuario -->
     <div class="input-group">
         <label for="userName">UserName</label>
-        <input id="userName" formControlName="userName" type="text" pInputText placeholder="Escribe username" />
+        <input id="userName" formControlName="userName" type="text" pInputText />
     </div>
 
     <div class="input-group">
         <label for="password">Password</label>
-        <input id="password" formControlName="password" type="password" pInputText placeholder="Escribe password" />
+        <input id="password" formControlName="password" type="password" pInputText />
     </div>
 
     <div class="input-group">
         <label for="dni">DNI</label>
-        <input id="dni" formControlName="dni" type="text" pInputText placeholder="Escribe dni" />
+        @if (mode === 'edit') {
+        <input id="dni" formControlName="dni" type="text" pInputText readonly />
+        } @else {
+        <input id="dni" formControlName="dni" type="text" pInputText />
+        }
     </div>
 
     <div class="input-group">
         <label for="role">Role</label>
-        <p-select [options]="roles" formControlName="role" inputId="role" placeholder="Selecciona un rol"
-            appendTo="body" optionValue="value" optionLabel="label">
+        <p-select [options]="roles" formControlName="role" inputId="role" placeholder="Select role" appendTo="body"
+            optionValue="value" optionLabel="label">
         </p-select>
     </div>
 
     @if (userForm.get('role')?.value !== 2) {
     <button pButton type="submit" class="p-button-guardar">
-        {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir Usuario' }}
+        {{ mode === 'edit' ? 'Save changes' : 'Add user' }}
     </button>
     }
 
@@ -71,8 +75,7 @@
         <div class="input-group">
             @if (key !== "phoneNums") {
             <label for="{{ key }}">{{ key | titlecase }}</label>
-            <input id="{{ key }}" [formControlName]="key" [type]="getFieldType(key)" pInputText
-                placeholder="Escribe {{ key | lowercase }}" />
+            <input id="{{ key }}" [formControlName]="key" [type]="getFieldType(key)" pInputText />
             }
         </div>
         }
@@ -83,7 +86,7 @@
             @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
             <div class="phone-input-group flex items-center gap-2 mb-2">
                 <input type="hidden" [formControl]="getPhoneIDControl(i)" />
-                <input type="text" pInputText [formControl]="getPhoneNumberControl(i)" placeholder="Número de teléfono"
+                <input type="text" pInputText [formControl]="getPhoneNumberControl(i)"
                     class="phone-input p-inputtext-sm"
                     [class.p-invalid]="getPhoneNumberControl(i).invalid && getPhoneNumberControl(i).touched" />
                 <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-sm"
@@ -93,13 +96,13 @@
             }
 
             <button pButton type="button" icon="pi pi-plus" iconPos="left" class="p-button-agregar" (click)="addPhone()"
-                aria-label="Agregar teléfono">
-                Agregar teléfono
+                aria-label="Add new phone">
+                Add new phone
             </button>
         </div>
 
         <button pButton type="submit" class="p-button-guardar">
-            {{ mode === 'edit' ? 'Guardar cambios' : 'Añadir Usuario' }}
+            {{ mode === 'edit' ? 'Save changes' : 'Add user' }}
         </button>
     </div>
     }

@@ -16,7 +16,7 @@ export class UserService {
             client: {
                 dni: newUser.dni
             },
-            rol: {
+            role: {
                 id: newUser.role
             }
         }
@@ -42,7 +42,7 @@ export class UserService {
             client: {
                 dni: newUser.dni
             },
-            rol: {
+            role: {
                 id: newUser.role
             }
         }
@@ -56,12 +56,12 @@ export class UserService {
 
         const userExist = await userRepository.findOne({
             where: { userName: user.userName },
-            relations: ["rol", "client"],
+            relations: ["role", "client"],
             select: {
                 id: true,
                 userName: true,
                 password: true,
-                rol: true,
+                role: true,
                 client: {
                     id: true
                 }
@@ -88,7 +88,7 @@ export class UserService {
             userId: userExist.id,
             clientId: userExist.client?.id ?? null,
             userName: userExist.userName,
-            rol: userExist.rol.type
+            role: userExist.role.type
         };
 
         const token = jwt.sign(userParsed, process.env.JWT_PSSWD!, { expiresIn: '1h' });
@@ -110,7 +110,7 @@ export class UserService {
                 }
             },
 
-            relations: ['client']
+            relations: ['client', 'role']
         });
     }
 

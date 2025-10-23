@@ -17,7 +17,7 @@ router.use('/role', Role);
 
 router.post('/register', checkRole(["admin"]), UserController.register);
 router.patch('/register', checkRole(["admin"]), UserController.updateRegisterInfo);
-router.get('/register-one-user/:?dni', checkRole(["admin"]), UserController.retrieveUserData);
+router.get('/register-one-user/:dni', checkRole(["admin"]), UserController.retrieveUserData);
 
 
 export default router;
