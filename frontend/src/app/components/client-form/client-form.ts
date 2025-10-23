@@ -1,6 +1,7 @@
 import {
   Component, EventEmitter, Input, OnInit,
-  Output, OnChanges, SimpleChanges
+  Output, OnChanges, SimpleChanges,
+  ChangeDetectorRef
 } from '@angular/core';
 import {
   ReactiveFormsModule, FormBuilder, FormGroup,
@@ -50,7 +51,7 @@ export class ClientForm implements OnInit, OnChanges {
   };
 
   constructor(private fb: FormBuilder, private role: RoleService,
-    private authService: AuthService
+    private authService: AuthService, private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -58,10 +59,11 @@ export class ClientForm implements OnInit, OnChanges {
     this.userForm = this.fb.group({});
     this.role.getRoles().subscribe({
       next: (response) => {
-        console.log(response);
         this.roles = response.data.map((obj: any) => ({ label: obj.type, value: obj.id }));
+        this.cdr.detectChanges();
       }
     });
+
 
 
     if (this.client) {
@@ -105,6 +107,7 @@ export class ClientForm implements OnInit, OnChanges {
             dni: userData.dni || '',
             role: userData.role || ''
           });
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error al obtener datos del usuario por dni:', error);

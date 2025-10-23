@@ -68,9 +68,6 @@ export class UserService {
             }
         });
 
-        console.log(userExist?.password);
-        console.log(user.password);
-
         if (!userExist) {
             throw Error("User with that name is not registered yet");
         }
