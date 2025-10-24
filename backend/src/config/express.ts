@@ -14,7 +14,7 @@ export class ExpressServer {
     private readonly corsOptions = {
         origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
         // Http methods allowed
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
         // Content-type it´s for json apps
         // x-request to use XMLHttpRequest
         // Accept to indicate response waited

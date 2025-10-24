@@ -87,7 +87,8 @@ export class ClientForm implements OnInit, OnChanges {
 
     this.userForm = this.fb.group({
       userName: [{ value: userData.userName || '', disabled: this.mode === 'view' }, Validators.required],
-      password: [{ value: userData.password || '', disabled: this.mode === 'view' }, Validators.required],
+      password: [{ value: userData.password || '', disabled: this.mode === 'view' },
+      this.mode === 'add' ? Validators.required : []],
       dni: [{ value: userData.dni || '', disabled: this.mode === 'view' }, Validators.required],
       role: [{ value: userData.role || '', disabled: this.mode === 'view' }, Validators.required]
     });

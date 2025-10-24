@@ -30,6 +30,7 @@ export class ClientService {
         const clientRepository = DB.getRepository(Client);
         const phoneRepository = DB.getRepository(ClientPhones);
 
+        console.log(clientID);
         console.log(newClientData);
 
         const existingClient = await clientRepository.findOne({
@@ -46,6 +47,8 @@ export class ClientService {
 
         // Only merge client data
         clientRepository.merge(existingClient, clientBasicData);
+        let updatedClient: Client | null = await clientRepository.save(existingClient);
+
 
         // parse phone data of clients
         if (phoneNums && phoneNums.length > 0) {
@@ -89,15 +92,15 @@ export class ClientService {
                 await phoneRepository.save(newPhone);
             }
 
-            const updatedClient = await clientRepository.findOne({
+            updatedClient = await clientRepository.findOne({
                 where: { id: clientID },
                 relations: ['phoneNums']
             });
 
-            return updatedClient;
+
         }
 
-        return await clientRepository.save(existingClient);
+        return updatedClient;
     }
 
 

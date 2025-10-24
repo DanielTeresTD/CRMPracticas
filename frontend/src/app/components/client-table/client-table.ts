@@ -163,8 +163,13 @@ export class ClientTable implements OnInit {
         });
       }
 
-      this.authService.updateRegister(formData).subscribe(() => {
-        console.log("User info updated");
+      this.authService.updateRegister(formData).subscribe({
+        next: () => {
+          console.log("User info updated sucessfully");
+        },
+        error: (err) => {
+          console.error(err);
+        }
       });
     }
   }

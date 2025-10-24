@@ -27,14 +27,16 @@ export class UserService {
     }
 
     public static async updateRegister(newUser: any): Promise<User> {
-        newUser.password = this.encodeToSHA256Hex(newUser.password!);
-        const userRepository = DB.getRepository(User);
         const oldUser = await this.findUserByDNI(newUser.dni);
 
         if (!oldUser) {
             throw Error("No user was found");
         }
 
+        newUser.password = newUser.password ?
+            this.encodeToSHA256Hex(newUser.password)
+            : oldUser.password;
+        const userRepository = DB.getRepository(User);
         const userFormat: DeepPartial<User> = {
             id: oldUser.id,
             userName: newUser.userName,
