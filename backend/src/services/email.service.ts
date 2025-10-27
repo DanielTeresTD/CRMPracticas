@@ -31,7 +31,5 @@ export class EmailService {
                 encoding: 'base64'
             }]
         });
-
-        console.log("Email send:", info.messageId);
     }
 }

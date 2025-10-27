@@ -48,7 +48,6 @@ export class ClientController {
 
         try {
             const newClient = req.body;
-            console.log(newClient);
 
             resp.data = await ClientService.addClient(newClient);
             resp.code = 200;

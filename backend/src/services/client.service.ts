@@ -30,9 +30,6 @@ export class ClientService {
         const clientRepository = DB.getRepository(Client);
         const phoneRepository = DB.getRepository(ClientPhones);
 
-        console.log(clientID);
-        console.log(newClientData);
-
         const existingClient = await clientRepository.findOne({
             where: { id: clientID },
             relations: ['phoneNums']

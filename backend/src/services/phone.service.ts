@@ -28,8 +28,6 @@ export class PhoneService {
             relations: ['client']
         });
 
-        console.log(clientPhone);
-
         if (!clientPhone || !clientPhone.client) {
             throw Error("Client ID associated to phone was not found");
         }

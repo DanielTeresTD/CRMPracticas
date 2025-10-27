@@ -21,7 +21,6 @@ export class UserService {
             }
         }
 
-        console.log("usuario formateado", userFormat);
         const userRepository = DB.getRepository(User);
         return await userRepository.save(userFormat);
     }
