@@ -82,7 +82,7 @@ export class ClientForm implements OnInit, OnChanges {
 
   // Build dynamic form group with every form control or form array based in the data 
   // provided by client atr.
-  private async buildUserForm(): Promise<void> {
+  private buildUserForm(): void {
     let userData: any = this.user ?? {};
 
     this.userForm = this.fb.group({
@@ -93,6 +93,7 @@ export class ClientForm implements OnInit, OnChanges {
       role: [{ value: userData.role || '', disabled: this.mode === 'view' }, Validators.required]
     });
 
+    // Si estamos en modo edición y hay cliente, traemos datos del usuario
     if (this.mode === 'edit' && this.client?.dni) {
       this.authService.getUserData(this.client.dni).subscribe({
         next: (response) => {
@@ -114,12 +115,22 @@ export class ClientForm implements OnInit, OnChanges {
           console.error('Error al obtener datos del usuario por dni:', error);
         }
       });
-
-
     }
 
-    // If role is not user, don´t show client form
+    // Cambios dinámicos según el rol
     this.userForm.get('role')?.valueChanges.subscribe((roleValue: number) => {
+      const dniControl = this.userForm.get('dni');
+
+      if (roleValue === 1) { // 1 = admin
+        dniControl?.clearValidators();
+        dniControl?.setValue(null);
+      } else { // 2 = user
+        dniControl?.setValidators(Validators.required);
+      }
+
+      dniControl?.updateValueAndValidity();
+
+      // Si es user o estamos editando, construimos formulario cliente
       if (roleValue === 2 || this.mode === 'edit') {
         this.buildClientForm();
       } else {
@@ -127,12 +138,14 @@ export class ClientForm implements OnInit, OnChanges {
       }
     });
 
-    if (userData.role === 'user' || userData.role === 2) {
+    // Inicializamos formulario de cliente si el rol inicial es user
+    if (userData.role === 2 || userData.role === 'user') {
       this.buildClientForm();
     } else {
       this.clientForm = undefined;
     }
   }
+
 
 
 
