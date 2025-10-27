@@ -2,7 +2,7 @@
 <div class="flex flex-col gap-4">
 
     <div class="input-group">
-        <label for="name">Nombre</label>
+        <label for="name">Name</label>
         <input id="name" pInputText [readonly]="true" [value]="client.name" />
     </div>
 
@@ -12,7 +12,7 @@
     </div>
 
     <div class="input-group">
-        <label for="address">Dirección</label>
+        <label for="address">Address</label>
         <input id="address" pInputText [readonly]="true" [value]="client.address" />
     </div>
 
@@ -21,7 +21,7 @@
         <input id="dni" pInputText [readonly]="true" [value]="client.dni" />
     </div>
 
-    @if (clientPhones && clientPhones.length > 0) { <div class="flex flex-col input-group"> <label>Teléfonos</label>
+    @if (clientPhones && clientPhones.length > 0) { <div class="flex flex-col input-group"> <label>Phones:</label>
         <ul class="list-disc list-inside pl-4"> @for (phone of clientPhones; track phone) { <li>{{ phone.phoneNumber }}
             </li> } </ul>
     </div> }
@@ -36,7 +36,7 @@
 
     <!-- Campos usuario -->
     <div class="input-group">
-        <label for="userName">UserName</label>
+        <label for="userName">User name</label>
         <input id="userName" formControlName="userName" type="text" pInputText />
     </div>
 
@@ -55,7 +55,7 @@
     </div>
 
     <div class="input-group">
-        <label for="role">Role</label>
+        <label for="role">Rol</label>
         <p-select [options]="roles" formControlName="role" inputId="role" placeholder="Select role" appendTo="body"
             optionValue="value" optionLabel="label">
         </p-select>
@@ -80,7 +80,7 @@
         }
 
         <div class="form-section">
-            <label style="font-weight: bold;">Teléfonos:</label>
+            <label style="font-weight: bold;">Phones:</label>
 
             @for (phoneGroup of phoneNums.controls; track $index; let i = $index) {
             <div class="phone-input-group flex items-center gap-2 mb-2">

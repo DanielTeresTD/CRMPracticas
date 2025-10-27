@@ -1,12 +1,33 @@
-<div class="align-center">
-    <h2>Login</h2>
-    <form #myForm="ngForm" (ngSubmit)="onSubmit(myForm.value)">
-        <input placeholder="User name" type="text" name="userName" [(ngModel)]="user.userName" required />
-        <input placeholder="Password" type="password" name="password" [(ngModel)]="user.password" required />
-        <div class="btn-div">
-            <button type="submit" [disabled]="!myForm.valid" class="login-btn">
+<mat-card>
+    <mat-card-content>
+        <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+            <h2>Log In</h2>
+
+            @if (!loginValid) {
+            <mat-error>
+                The username or password are invalid
+            </mat-error>
+            }
+
+            @for (field of [
+            { placeholder: 'User name', type: 'text', model: 'username', name: 'username', required: true, error:
+            'Please
+            provide a valid user name' },
+            { placeholder: 'Password', type: 'password', model: 'password', name: 'password', required: true, error:
+            'Please provide a valid password' }
+            ]; track field.name) {
+            <mat-form-field>
+                <input matInput [placeholder]="field.placeholder" [(ngModel)]="this[field.model]" [name]="field.name"
+                    [required]="field.required" [type]="field.type">
+                <mat-error>
+                    {{ field.error }}
+                </mat-error>
+            </mat-form-field>
+            }
+
+            <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid">
                 Login
             </button>
-        </div>
-    </form>
-</div>
+        </form>
+    </mat-card-content>
+</mat-card>

@@ -70,3 +70,55 @@
         top: 0; // mantiene altura igual
     }
 }
+
+/* === PrimeNG Table Header Custom === */
+:host ::ng-deep .p-sortable-column {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+/* Evita el color verde al hacer clic o cuando está ordenado */
+:host ::ng-deep .p-sortable-column.p-highlight {
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+/* Suaviza el hover (gris claro en lugar de verde) */
+:host ::ng-deep .p-sortable-column:not(.p-highlight):hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: inherit;
+}
+
+/* Quita foco feo al hacer clic */
+:host ::ng-deep .p-sortable-column:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Espaciado entre texto y flecha de ordenación */
+:host ::ng-deep .header-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    /* separa texto e icono */
+}
+
+/* Opcional: color más suave del icono de ordenación */
+:host ::ng-deep .p-sortable-column-icon {
+    color: #666;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+
+/* Opcional: pequeña animación de rotación al cambiar orden */
+:host ::ng-deep .p-sortable-column.p-highlight .p-sortable-column-icon {
+    transform: translateY(1px);
+    color: #222;
+}
+
+.table-wrapper ::ng-deep .p-paginator {
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box;
+}
