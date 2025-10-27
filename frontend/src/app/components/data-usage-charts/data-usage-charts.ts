@@ -238,7 +238,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
         labels: this.statisticsDataUsage!.dataUsage.map(row => row.year),
         datasets: [
           {
-            label: 'Yearly Data Usage',
+            label: 'Yearly Data Usage in euros',
             data: this.statisticsDataUsage!.dataUsage.map(row => row.totalUsage),
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -262,13 +262,18 @@ export class DataUsageCharts implements OnInit, OnChanges {
         },
         scales: {
           y: {
-            beginAtZero: true
-          },
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Data Usage in euros',
+              color: '#1f2937'
+            }
+          }
         },
         plugins: {
           title: {
             display: true,
-            text: 'Yearly data usage',
+            text: 'Yearly data usage in euros',
             color: '#1f2937',
             font: {
               size: 16,
@@ -311,7 +316,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
         labels: this.statisticsDataUsageMonthly!.dataUsage.map(point => monthNames[point.month! - 1]),
         datasets: [
           {
-            label: `Monthly Data Usage ${this.selectedYear}`,
+            label: `Monthly Data Usage ${this.selectedYear} in euros`,
             data: this.statisticsDataUsageMonthly!.dataUsage.map(point => point.totalUsage),
             borderColor: 'rgb(34, 197, 94)',
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -324,12 +329,19 @@ export class DataUsageCharts implements OnInit, OnChanges {
       options: {
         responsive: true,
         scales: {
-          y: { beginAtZero: true }
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Data Usage in euros',
+              color: '#1f2937'
+            }
+          }
         },
         plugins: {
           title: {
             display: true,
-            text: `Monthly Data Usage ${this.selectedYear}`,
+            text: `Monthly Data Usage ${this.selectedYear} in euros`,
             color: '#1f2937',
             font: { size: 16, weight: 'bold' },
             padding: { bottom: 30 }
@@ -400,7 +412,7 @@ export class DataUsageCharts implements OnInit, OnChanges {
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Data Usage',
+              text: 'Data Usage in euros',
               color: '#1f2937'
             }
           }
