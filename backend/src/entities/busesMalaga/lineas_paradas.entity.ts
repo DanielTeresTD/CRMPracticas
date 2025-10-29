@@ -4,9 +4,9 @@ import {
 
 @Entity('lineas_paradas')
 export class LineasParadas {
-    @PrimaryColumn()
+    @PrimaryColumn({ name: "codLinea", type: "smallint", unsigned: true })
     codLinea!: number;
 
-    @PrimaryColumn()
+    @PrimaryColumn({ name: "codParada", type: "smallint", unsigned: true })
     codParada!: number;
 }

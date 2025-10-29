@@ -1,8 +1,4 @@
-import {
-    Entity, Column, PrimaryColumn, PrimaryGeneratedColumn, OneToMany,
-    ManyToMany, JoinTable
-} from 'typeorm';
-import { Paradas } from './paradas.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: "lineas" })
 export class Lineas {
@@ -20,19 +16,4 @@ export class Lineas {
 
     @Column({ name: "cabeceraVuelta", type: "text", nullable: true })
     cabeceraVuelta!: string;
-
-    // @ManyToMany(() => Paradas, parada => parada.lineas)
-    // // Necesaria tabla intermedia por las 2 relaciones ManyToMany
-    // @JoinTable({
-    //     name: "lineas_paradas",
-    //     // Nombre de esta entidad con la que se relacionará
-    //     joinColumn: {
-    //         name: "codLinea"
-    //     },
-    //     // Nombre de la columna de la entidad con la que se relaciona
-    //     inverseJoinColumn: {
-    //         name: "codParada"
-    //     }
-    // })
-    // paradas!: Paradas[];
 }

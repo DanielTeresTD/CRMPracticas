@@ -14,10 +14,10 @@ export class Ubicacionnes {
     @Column({ name: "sentido", type: "tinyint" })
     sentido!: number;
 
-    @Column({ name: "lon", type: "numeric" })
-    lon!: number;
-
-    @Column({ name: "lat", type: "numeric" })
+    @Column({ name: "lat", type: "decimal", precision: 9, scale: 6, nullable: true })
     lat!: number;
+
+    @Column({ name: "lon", type: "decimal", precision: 9, scale: 6, nullable: true })
+    lon!: number;
 }
 

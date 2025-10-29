@@ -10,8 +10,8 @@ export class LineasService {
         let data: any;
 
         try {
-            const baseUrl = process.env.API_LINEAS_PARADAS!;
-            const resourceId = process.env.RESOURCE_ID_LINEAS_PARADAS!;
+            const baseUrl = process.env.API_BUS_LINES_STOPS!;
+            const resourceId = process.env.RESOURCE_ID_BUS_LINES_STOPS!;
             const url = `${baseUrl}?resource_id=${resourceId}&limit=30`;
 
             const response = await fetch(url);
@@ -64,7 +64,7 @@ export class LineasService {
             const chunk = busLines.slice(i, i + chunkSize);
             // Upsert only add register with diferents "codLine" (in this case)
             // If other register is repeated with same "codLine", it will be 
-            // ignored. 
+            // updated if others values were provided. 
             // Sumarising, that avoid duplicate registers given second param.
             await busLinesRepository.upsert(chunk, ["codLinea"]);
         }

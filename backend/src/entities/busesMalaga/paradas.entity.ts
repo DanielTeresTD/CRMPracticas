@@ -1,7 +1,4 @@
-import {
-    Entity, Column, PrimaryGeneratedColumn, ManyToMany
-} from 'typeorm';
-import { Lineas } from './lineas.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: "paradas" })
 export class Paradas {
@@ -23,6 +20,4 @@ export class Paradas {
     @Column({ name: "lon", type: "decimal", precision: 9, scale: 6, nullable: true })
     lon!: number;
 
-    // @ManyToMany(() => Lineas, linea => linea.paradas, { nullable: true })
-    // lineas?: Lineas[];
 }
