@@ -21,7 +21,9 @@ const requiredEnvVars: Array<string> = [
     "DB_PORT",
     "EMAIL_USER",
     "EMAIL_PSSWD",
-    "JWT_PSSWD"
+    "JWT_PSSWD",
+    "API_LINEAS_PARADAS",
+    "RESOURCE_ID_LINEAS_PARADAS"
 ];
 
 const missingVars = requiredEnvVars.filter(varEnvName => !process.env[varEnvName]);

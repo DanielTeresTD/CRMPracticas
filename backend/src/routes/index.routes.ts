@@ -4,6 +4,7 @@ import PhoneRoutes from "./phone.routes";
 import DataUsage from "./dataUsage.routes";
 import Email from "./email.routes";
 import Role from "./role.routes";
+import Lineas from "./busesMalaga/lineas.routes"
 import { UserController } from "../controllers/user.controller";
 import { checkRole } from "../middlewares/checkRole";
 
@@ -14,6 +15,7 @@ router.use('/telefonos', PhoneRoutes);
 router.use('/consumo-datos', DataUsage);
 router.use('/email', Email);
 router.use('/role', Role);
+router.use('/lineas-buses', Lineas);
 
 router.post('/register', checkRole(["admin"]), UserController.register);
 router.patch('/register', checkRole(["admin"]), UserController.updateRegisterInfo);

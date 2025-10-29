@@ -9,7 +9,7 @@ export const DB = new DataSource({
     password: process.env.DB_PASSWORD!,
     database: process.env.DB_NAME!,
     port: parseInt(process.env.DB_PORT!, 10),
-    entities: [path.join(__dirname, "../entities/*")],
+    entities: [path.join(__dirname, "../entities/**/*")],
     synchronize: true,
 });
 
