@@ -2,6 +2,7 @@ import './config/config';
 import 'reflect-metadata';
 import { initOrm } from './config/typeorm';
 import { ExpressServer } from './config/express';
+import './config/scheduler';
 
 // Check connection to database
 const server = new ExpressServer();
