@@ -4,7 +4,8 @@ import PhoneRoutes from "./phone.routes";
 import DataUsage from "./dataUsage.routes";
 import Email from "./email.routes";
 import Role from "./role.routes";
-import Lineas from "./busesMalaga/lineas.routes"
+import Lineas from "./busesMalaga/lineas.routes";
+import Ubicaciones from "./busesMalaga/ubicaciones.routes";
 import { UserController } from "../controllers/user.controller";
 import { checkRole } from "../middlewares/checkRole";
 
@@ -16,6 +17,7 @@ router.use('/consumo-datos', DataUsage);
 router.use('/email', Email);
 router.use('/role', Role);
 router.use('/lineas-buses', Lineas);
+router.use('/ubicaciones-buses', Ubicaciones);
 
 router.post('/register', checkRole(["admin"]), UserController.register);
 router.patch('/register', checkRole(["admin"]), UserController.updateRegisterInfo);

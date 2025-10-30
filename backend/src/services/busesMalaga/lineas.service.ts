@@ -3,28 +3,13 @@ import { Lineas } from '../../entities/busesMalaga/lineas.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { ParadasService } from './paradas.service';
 import { LineasParadas } from '../../entities/busesMalaga/lineas_paradas.entity';
+import { fetchBusApiData } from './busApi.service';
 
 export class LineasService {
 
     public static async storeBusLines(): Promise<Lineas[]> {
-        let data: any;
-
-        try {
-            const baseUrl = process.env.API_BUS_LINES_STOPS!;
-            const resourceId = process.env.RESOURCE_ID_BUS_LINES_STOPS!;
-            const url = `${baseUrl}?resource_id=${resourceId}&limit=30`;
-
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
-            }
-
-            data = await response.json();
-
-        } catch (error) {
-            console.error('Error while fetching bus lines: ', error);
-            throw error;
-        }
+        const data = await fetchBusApiData(process.env.API_BUS_LINES_STOPS!,
+            process.env.RESOURCE_ID_BUS_LINES_STOPS!);
 
         const rawRecords: any[] = data.result.records;
         const busLinesRepository = DB.getRepository(Lineas);
@@ -35,7 +20,7 @@ export class LineasService {
         // Create lines of the data retrieved, it will be stored in array
         // data structure to pass to typeorm eassly
         const lines = rawRecords
-            .filter(record => record.codLinea != null && record.codParada != null)
+            .filter(record => record.codLinea != null)
             .map(record => ({
                 codLinea: record.codLinea,
                 nombreLinea: record.nombreLinea,

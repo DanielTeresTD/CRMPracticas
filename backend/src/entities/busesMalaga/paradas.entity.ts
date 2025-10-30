@@ -5,7 +5,7 @@ export class Paradas {
     @PrimaryGeneratedColumn({ name: "id" })
     id!: number;
 
-    @Column({ name: "codParada", type: "smallint", unique: true, nullable: false })
+    @Column({ name: "codParada", type: "smallint", unsigned: true, unique: true, nullable: false })
     codParada!: number;
 
     @Column({ name: "nombreParada", type: "text", nullable: false })

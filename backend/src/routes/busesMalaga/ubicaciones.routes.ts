@@ -3,4 +3,6 @@ import { UbicacionesController } from '../../controllers/busesMalaga/ubicaciones
 
 const router = Router();
 
+router.get("/", UbicacionesController.storeBusLines);
+
 export default router;
