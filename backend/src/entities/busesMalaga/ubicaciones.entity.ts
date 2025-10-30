@@ -8,7 +8,7 @@ export class Ubicacionnes {
     @Column({ name: "codBus", type: "smallint", unique: true })
     codBus!: number;
 
-    @Column({ name: "smallint", type: "text" })
+    @Column({ name: "codLinea", type: "smallint", unique: true })
     codLinea!: number;
 
     @Column({ name: "sentido", type: "tinyint" })

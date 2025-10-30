@@ -12,7 +12,7 @@ schedule.scheduleJob('0 0 3 * * *', async () => {
     }
 });
 
-schedule.scheduleJob('* */1 * * * *', async () => {
+schedule.scheduleJob('*/1 * * * *', async () => {
     try {
         await UbicacionesService.storeLocations();
         console.log('Job for update locations executed succesfully');

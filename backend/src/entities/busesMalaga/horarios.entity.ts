@@ -6,7 +6,7 @@ export class Horarios {
     @PrimaryGeneratedColumn({ name: "id" })
     id!: number;
 
-    @ManyToOne(() => LineasParadas)
+    @ManyToOne(() => LineasParadas, { onDelete: 'CASCADE' })
     @JoinColumn([
         { name: 'codLinea', referencedColumnName: 'codLinea' },
         { name: 'codParada', referencedColumnName: 'codParada' }

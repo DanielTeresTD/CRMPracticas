@@ -7,8 +7,9 @@ export class LineasController {
         let resp = new GenResponse();
 
         try {
-            resp.data = await LineasService.storeBusLines();
+            await LineasService.storeBusLines();
             resp.code = 200;
+            resp.msg = "Bus lines and stops loaded correctly";
         } catch (error) {
             if (error instanceof Error) {
                 resp.msg = error.message;

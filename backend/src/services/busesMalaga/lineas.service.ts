@@ -3,55 +3,48 @@ import { Lineas } from '../../entities/busesMalaga/lineas.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { ParadasService } from './paradas.service';
 import { LineasParadas } from '../../entities/busesMalaga/lineas_paradas.entity';
-import { fetchBusApiData } from './busApi.service';
+import { fetchBusApiData, storeByChunks } from './busApi.service';
 
 export class LineasService {
 
-    public static async storeBusLines(): Promise<Lineas[]> {
-        const data = await fetchBusApiData(process.env.API_BUS_LINES_STOPS!,
-            process.env.RESOURCE_ID_BUS_LINES_STOPS!);
+    public static async storeBusLines(): Promise<void> {
+        const limit = 7000;
+        const data = await fetchBusApiData(
+            process.env.API_BUS_LINES_STOPS!,
+            process.env.RESOURCE_ID_BUS_LINES_STOPS!,
+            limit
+        );
 
         const rawRecords: any[] = data.result.records;
         const busLinesRepository = DB.getRepository(Lineas);
-        const lineasParadasRepo = DB.getRepository(LineasParadas);
+        const linesStopsRepository = DB.getRepository(LineasParadas);
         // Create all bus stops from data retrieved
         await ParadasService.addBusStops(rawRecords);
 
         // Create lines of the data retrieved, it will be stored in array
         // data structure to pass to typeorm eassly
         const lines = rawRecords
-            .filter(record => record.codLinea != null)
-            .map(record => ({
-                codLinea: record.codLinea,
-                nombreLinea: record.nombreLinea,
-                cabeceraIda: record.cabeceraIda,
-                cabeceraVuelta: record.cabeceraVuelta
+            .filter(actLine => actLine.codLinea != null && actLine.nombreLinea != null)
+            .map(actLine => ({
+                codLinea: actLine.codLinea,
+                nombreLinea: actLine.nombreLinea,
+                cabeceraIda: actLine.cabeceraIda,
+                cabeceraVuelta: actLine.cabeceraVuelta
             }));
         const chunkSize = 1024;
+        const constraints = ["codLinea"];
         // Insert all lines in the table using chunks
-        await this.storeLinesByChunks(busLinesRepository, lines, chunkSize);
+        await storeByChunks(busLinesRepository, lines, constraints, chunkSize);
 
         const relationsBusStops = rawRecords
-            .filter(record => record.codLinea != null && record.codParada != null)
-            .map(record => ({
-                codLinea: record.codLinea,
-                codParada: record.codParada
+            .filter(actLine => actLine.codLinea != null && actLine.codParada != null)
+            .map(actLine => ({
+                codLinea: actLine.codLinea,
+                codParada: actLine.codParada
             }));
         // Save has property to insert by chunkSizes
-        await lineasParadasRepo.save(relationsBusStops, { chunk: chunkSize });
-
-        return data.result.records as Lineas[];
+        constraints.push("codParada");
+        await storeByChunks(linesStopsRepository, relationsBusStops, constraints, chunkSize);
     }
 
-    private static async storeLinesByChunks(busLinesRepository: Repository<Lineas>,
-        busLines: Array<DeepPartial<Lineas>>, chunkSize: number): Promise<void> {
-        for (let i = 0; i < busLines.length; i += chunkSize) {
-            const chunk = busLines.slice(i, i + chunkSize);
-            // Upsert only add register with diferents "codLine" (in this case)
-            // If other register is repeated with same "codLine", it will be 
-            // updated if others values were provided. 
-            // Sumarising, that avoid duplicate registers given second param.
-            await busLinesRepository.upsert(chunk, ["codLinea"]);
-        }
-    }
 }
