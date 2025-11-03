@@ -12,11 +12,11 @@ schedule.scheduleJob('0 0 3 * * *', async () => {
     }
 });
 
-schedule.scheduleJob('*/1 * * * *', async () => {
+schedule.scheduleJob('* */1 * * *', async () => {
     try {
         await UbicacionesService.storeLocations();
         console.log('Job for update locations executed succesfully');
     } catch (err) {
-        console.error('Error while executing job to update busLines and busStops:\n', err);
+        console.error('Error while executing job for upadte bus locations:\n', err);
     }
 });

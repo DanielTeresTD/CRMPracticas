@@ -23,7 +23,11 @@ const requiredEnvVars: Array<string> = [
     "EMAIL_PSSWD",
     "JWT_PSSWD",
     "API_BUS_LINES_STOPS",
-    "RESOURCE_ID_BUS_LINES_STOPS"
+    "RESOURCE_ID_BUS_LINES_STOPS",
+    "API_BUS_LOCATIONS",
+    "RESOURCE_ID_BUS_LOCATIONS",
+    "URL_STOP_TIMES",
+    "URL_TRIPS"
 ];
 
 const missingVars = requiredEnvVars.filter(varEnvName => !process.env[varEnvName]);

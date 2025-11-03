@@ -8,7 +8,7 @@ import { fetchBusApiData, storeByChunks } from './busApi.service';
 export class LineasService {
 
     public static async storeBusLines(): Promise<void> {
-        const limit = 7000;
+        const limit = 6500;
         const data = await fetchBusApiData(
             process.env.API_BUS_LINES_STOPS!,
             process.env.RESOURCE_ID_BUS_LINES_STOPS!,

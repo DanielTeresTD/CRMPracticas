@@ -3,4 +3,6 @@ import { HorariosController } from '../../controllers/busesMalaga/horarios.contr
 
 const router = Router();
 
+router.get("/", HorariosController.storeBusSchedule);
+
 export default router;

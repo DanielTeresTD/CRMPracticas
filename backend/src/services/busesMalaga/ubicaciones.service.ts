@@ -6,10 +6,11 @@ import { fetchBusApiData, storeByChunks } from './busApi.service';
 export class UbicacionesService {
 
     public static async storeLocations(): Promise<DeepPartial<Ubicacionnes>[]> {
-        const limit = 100;
+        const limit = 200;
         const data = await fetchBusApiData(
             process.env.API_BUS_LOCATIONS!,
-            process.env.RESOURCE_ID_BUS_LOCATIONS!
+            process.env.RESOURCE_ID_BUS_LOCATIONS!,
+            limit
         );
 
         const rawRecords: any[] = data.result.records;

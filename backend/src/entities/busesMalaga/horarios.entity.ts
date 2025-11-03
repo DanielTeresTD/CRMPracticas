@@ -1,17 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { LineasParadas } from './lineas_paradas.entity';
+import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: "horarios" })
 export class Horarios {
     @PrimaryGeneratedColumn({ name: "id" })
     id!: number;
 
-    @ManyToOne(() => LineasParadas, { onDelete: 'CASCADE' })
-    @JoinColumn([
-        { name: 'codLinea', referencedColumnName: 'codLinea' },
-        { name: 'codParada', referencedColumnName: 'codParada' }
-    ])
-    lineaParada!: LineasParadas;
+    @PrimaryColumn({ name: "codLinea", type: "smallint", unsigned: true })
+    codLinea!: number;
+
+    @PrimaryColumn({ name: "codParada", type: "smallint", unsigned: true })
+    codParada!: number;
 
     // To determine when the next bus arrives at a stop, I will use the current time 
     // with new Date(), calculate the difference with this attribute, 

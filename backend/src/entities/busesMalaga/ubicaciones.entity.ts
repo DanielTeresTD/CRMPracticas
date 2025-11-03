@@ -1,14 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity({ name: "ubicaciones" })
+@Unique(["codBus", "codLinea"])
 export class Ubicacionnes {
     @PrimaryGeneratedColumn({ name: "id" })
     id!: number;
 
-    @Column({ name: "codBus", type: "smallint", unique: true })
+    @Column({ name: "codBus", type: "smallint" })
     codBus!: number;
 
-    @Column({ name: "codLinea", type: "smallint", unique: true })
+    @Column({ name: "codLinea", type: "smallint" })
     codLinea!: number;
 
     @Column({ name: "sentido", type: "tinyint" })
