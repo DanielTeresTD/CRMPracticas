@@ -9,7 +9,7 @@ export class HorariosController {
         try {
             await HorariosService.storeBusSchedule();
             resp.code = 200;
-            resp.msg = "Bus lines and stops loaded correctly";
+            resp.msg = "Bus schedule loaded correctly";
         } catch (error) {
             if (error instanceof Error) {
                 resp.msg = error.message;
