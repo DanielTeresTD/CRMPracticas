@@ -3,12 +3,18 @@
         <div class="app-title">
             <span>CRM</span>
         </div>
+
+        <div class="app-menubar">
+            <p-menubar [model]="menuItems"></p-menubar>
+        </div>
+
         <button pButton label="Logout" icon="pi pi-sign-out" (click)="logout()"
             class="p-button-sm p-button-danger"></button>
     </header>
 
+
     <main class="mb-5">
-        <app-client-table></app-client-table>
+        <router-outlet></router-outlet>
     </main>
 
     <footer class="flex justify-content-between align-items-center px-4 py-3 border-top surface-100 text-sm">
