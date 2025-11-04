@@ -5,10 +5,10 @@ export class Horarios {
     @PrimaryGeneratedColumn({ name: "id" })
     id!: number;
 
-    @PrimaryColumn({ name: "codLinea", type: "smallint", unsigned: true })
+    @Column({ name: "codLinea", type: "smallint", unsigned: true })
     codLinea!: number;
 
-    @PrimaryColumn({ name: "codParada", type: "smallint", unsigned: true })
+    @Column({ name: "codParada", type: "smallint", unsigned: true })
     codParada!: number;
 
     // To determine when the next bus arrives at a stop, I will use the current time 

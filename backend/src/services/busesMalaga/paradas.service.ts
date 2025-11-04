@@ -1,6 +1,7 @@
 import { DB } from '../../config/typeorm';
 import { Paradas } from '../../entities/busesMalaga/paradas.entity';
-import { DeepPartial, Repository } from 'typeorm';
+import { LineasParadas } from '../../entities/busesMalaga/lineas_paradas.entity';
+import { DeepPartial, Repository, In } from 'typeorm';
 
 export class ParadasService {
 
@@ -26,5 +27,23 @@ export class ParadasService {
             const chunk = busStops.slice(i, i + chunkSize);
             await busStopsRepository.upsert(chunk, ["codParada"]);
         }
+    }
+
+    public static async getBusStops(): Promise<Paradas[]> {
+        const busStopsRepo = DB.getRepository(Paradas);
+        return await busStopsRepo.find();
+    }
+
+    public static async getBusStopsByLine(lineId: number): Promise<number[]> {
+        const busStopsRepo = DB.getRepository(Paradas);
+        const linesStopsRepo = DB.getRepository(LineasParadas);
+
+        const stopsIdsObjects = await linesStopsRepo.find({
+            where: { codLinea: lineId },
+            select: ["codParada"]
+        });
+
+        return stopsIdsObjects.map(obj => obj.codParada);
+
     }
 }

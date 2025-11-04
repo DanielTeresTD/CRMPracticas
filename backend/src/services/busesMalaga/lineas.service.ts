@@ -1,6 +1,5 @@
 import { DB } from '../../config/typeorm';
 import { Lineas } from '../../entities/busesMalaga/lineas.entity';
-import { DeepPartial, Repository } from 'typeorm';
 import { ParadasService } from './paradas.service';
 import { LineasParadas } from '../../entities/busesMalaga/lineas_paradas.entity';
 import { fetchBusApiData, storeByChunks } from './busApi.service';
@@ -46,5 +45,12 @@ export class LineasService {
         constraints.push("codParada");
         await storeByChunks(linesStopsRepository, relationsBusStops, constraints, chunkSize);
     }
+
+    public static async getLinesCodeName(): Promise<Partial<Lineas>[]> {
+        const linesRepo = DB.getRepository(Lineas);
+        return await linesRepo.find({ select: ["codLinea", "nombreLinea"] });
+    }
+
+
 
 }

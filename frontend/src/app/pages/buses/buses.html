@@ -1,1 +1,10 @@
-<p>buses works!</p>
+<div class="card">
+    <p-select [options]="linesItems" [(ngModel)]="selectedLine" placeholder="Select a bus line" optionLabel="label"
+        [filter]="true" filterBy="label" [showClear]="true" (onChange)="onLineChange($event)" class="w-56 mx-auto" />
+
+    <p-select [options]="selectedLine ? stopItemsByLine : stopItems" [(ngModel)]="selectedStop"
+        placeholder="Select a bus stop" optionLabel="label" [filter]="true" filterBy="label" [showClear]="true"
+        class="w-56 mx-auto" />
+</div>
+
+<app-buses-map></app-buses-map>

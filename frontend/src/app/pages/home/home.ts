@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from '../../services/authService.service';
+
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
-import { AuthService } from '../../services/authService.service';
+
 
 @Component({
   selector: 'app-home',
@@ -20,7 +22,7 @@ export class Home {
 
   ngOnInit() {
     this.menuItems = [
-      { label: 'Clientes', icon: 'pi pi-users', routerLink: '/home/clientes' },
+      { label: 'Clientes', icon: 'pi pi-phone', routerLink: '/home/clientes' },
       { label: 'Buses', icon: 'pi pi-truck', routerLink: '/home/buses' }
     ];
   }

@@ -3,7 +3,6 @@ import { createReadStream } from "fs";
 import { DB } from '../../config/typeorm';
 import { DeepPartial } from "typeorm";
 import { Horarios } from '../../entities/busesMalaga/horarios.entity';
-import { LineasParadas } from "../../entities/busesMalaga/lineas_paradas.entity";
 import { storeByChunks } from './busApi.service';
 import path from "path";
 
@@ -60,11 +59,11 @@ export class HorariosService {
                 .pipe(csv())
                 .on("data", (data: any) => {
                     const filteredData: { [key: string]: any } = {};
+
                     for (const key of columnNames) {
-                        if (data.hasOwnProperty(key)) {
-                            filteredData[key] = data[key];
-                        }
+                        filteredData[key] = data[key];
                     }
+
                     if (Object.keys(filteredData).length > 0) {
                         results.push(filteredData);
                     }

@@ -1,0 +1,7 @@
+.card {
+    display: flex; // flex horizontal
+    justify-content: center; // centrar todo horizontalmente
+    align-items: flex-start; // alineación vertical arriba
+    gap: 1.25rem; // espacio lateral entre hijos (equivale a Tailwind space-x-5)
+    padding-bottom: 1rem;
+}

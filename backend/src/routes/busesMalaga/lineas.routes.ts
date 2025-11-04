@@ -4,5 +4,6 @@ import { LineasController } from '../../controllers/busesMalaga/lineas.controlle
 const router = Router();
 
 router.get('/', LineasController.storeBusLines);
+router.get('/nom-cod', LineasController.getLinesCodeName);
 
 export default router;
