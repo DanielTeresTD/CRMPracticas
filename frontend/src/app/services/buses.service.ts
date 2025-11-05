@@ -6,19 +6,23 @@ import { Observable } from 'rxjs'; // Handle async data streams
 
 @Injectable({ providedIn: 'root' })
 export class BusesService {
-    private readonly apiURL = enviroment.apiURL;
+  private readonly apiURL = enviroment.apiURL;
 
-    constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-    public getNameCodeLines(): Observable<GenResponse> {
-        return this.http.get<GenResponse>(`${this.apiURL}/lineas-buses/nom-cod`);
-    }
+  public getNameCodeLines(): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/lineas-buses/nom-cod`);
+  }
 
-    public getBusStops(): Observable<GenResponse> {
-        return this.http.get<GenResponse>(`${this.apiURL}/paradas-buses`);
-    }
+  public getBusStops(): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/paradas-buses`);
+  }
 
-    public getBusStopsByLine(lineId: number): Observable<GenResponse> {
-        return this.http.get<GenResponse>(`${this.apiURL}/paradas-buses/linea?lineId=${lineId}`);
-    }
+  public getBusStopsByLine(lineId: number): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/paradas-buses/linea?lineId=${lineId}`);
+  }
+
+  public getBusesByLine(lineId: number): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/ubicaciones-buses/linea?lineId=${lineId}`);
+  }
 }

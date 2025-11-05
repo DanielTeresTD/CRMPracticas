@@ -1,118 +1,119 @@
-import { DB } from '../config/typeorm';
-import { User } from '../entities/user.entity';
+import { DB } from "../config/typeorm";
+import { User } from "../entities/user.entity";
 import * as crypto from "crypto";
-import { LogService } from '../services/log.service';
-import { Log } from '../entities/log.entity';
-import { DeepPartial } from 'typeorm';
-import jwt from 'jsonwebtoken';
+import { LogService } from "../services/log.service";
+import { Log } from "../entities/log.entity";
+import { DeepPartial } from "typeorm";
+import jwt from "jsonwebtoken";
 
 export class UserService {
+  public static async registerUser(newUser: any): Promise<User> {
+    newUser.password = this.encodeToSHA256Hex(newUser.password!);
+    const userFormat: DeepPartial<User> = {
+      userName: newUser.userName,
+      password: newUser.password,
+      client: {
+        dni: newUser.dni,
+      },
+      role: {
+        id: newUser.role,
+      },
+    };
 
-    public static async registerUser(newUser: any): Promise<User> {
-        newUser.password = this.encodeToSHA256Hex(newUser.password!);
-        const userFormat: DeepPartial<User> = {
-            userName: newUser.userName,
-            password: newUser.password,
-            client: {
-                dni: newUser.dni
-            },
-            role: {
-                id: newUser.role
-            }
-        }
+    const userRepository = DB.getRepository(User);
+    return await userRepository.save(userFormat);
+  }
 
-        const userRepository = DB.getRepository(User);
-        return await userRepository.save(userFormat);
+  public static async updateRegister(newUser: any): Promise<User> {
+    const oldUser = await this.findUserByDNI(newUser.dni);
+
+    if (!oldUser) {
+      throw Error("No user was found");
     }
 
-    public static async updateRegister(newUser: any): Promise<User> {
-        const oldUser = await this.findUserByDNI(newUser.dni);
+    newUser.password = newUser.password
+      ? this.encodeToSHA256Hex(newUser.password)
+      : oldUser.password;
+    const userRepository = DB.getRepository(User);
+    const userFormat: DeepPartial<User> = {
+      id: oldUser.id,
+      userName: newUser.userName,
+      password: newUser.password,
+      client: {
+        dni: newUser.dni,
+      },
+      role: {
+        id: newUser.role,
+      },
+    };
 
-        if (!oldUser) {
-            throw Error("No user was found");
-        }
+    return await userRepository.save(userFormat);
+  }
 
-        newUser.password = newUser.password ?
-            this.encodeToSHA256Hex(newUser.password)
-            : oldUser.password;
-        const userRepository = DB.getRepository(User);
-        const userFormat: DeepPartial<User> = {
-            id: oldUser.id,
-            userName: newUser.userName,
-            password: newUser.password,
-            client: {
-                dni: newUser.dni
-            },
-            role: {
-                id: newUser.role
-            }
-        }
+  public static async login(
+    user: DeepPartial<User>
+  ): Promise<{ token: string; user: Object }> {
+    user.password = this.encodeToSHA256Hex(user.password!);
+    const userRepository = DB.getRepository(User);
 
-        return await userRepository.save(userFormat);
+    const userExist = await userRepository.findOne({
+      where: { userName: user.userName },
+      relations: ["role", "client"],
+      select: {
+        id: true,
+        userName: true,
+        password: true,
+        role: true,
+        client: {
+          id: true,
+        },
+      },
+    });
+
+    if (!userExist) {
+      throw Error("User with that name is not registered yet");
     }
 
-    public static async login(user: DeepPartial<User>): Promise<{ token: string, user: Object }> {
-        user.password = this.encodeToSHA256Hex(user.password!);
-        const userRepository = DB.getRepository(User);
+    const passwordCorrect = userExist.password === user.password;
+    const logData: DeepPartial<Log> = {
+      success: passwordCorrect,
+      userId: { id: userExist.id },
+    };
 
-        const userExist = await userRepository.findOne({
-            where: { userName: user.userName },
-            relations: ["role", "client"],
-            select: {
-                id: true,
-                userName: true,
-                password: true,
-                role: true,
-                client: {
-                    id: true
-                }
-            }
-        });
+    await LogService.add(logData);
 
-        if (!userExist) {
-            throw Error("User with that name is not registered yet");
-        }
-
-        const passwordCorrect = userExist.password === user.password;
-        const logData: DeepPartial<Log> = {
-            success: passwordCorrect,
-            userId: { id: userExist.id }
-        };
-
-        await LogService.add(logData);
-
-        if (!passwordCorrect) {
-            throw new Error("Password incorrect");
-        }
-
-        const userParsed = {
-            userId: userExist.id,
-            clientId: userExist.client?.id ?? null,
-            userName: userExist.userName,
-            role: userExist.role.type
-        };
-
-        const token = jwt.sign(userParsed, process.env.JWT_PSSWD!, { expiresIn: '1h' });
-        return { token, user: userParsed };
+    if (!passwordCorrect) {
+      throw new Error("Password incorrect");
     }
 
+    const userParsed = {
+      userId: userExist.id,
+      clientId: userExist.client?.id ?? null,
+      userName: userExist.userName,
+      role: userExist.role.type,
+    };
 
-    // Encode text using sha256 and return in hex format.
-    private static encodeToSHA256Hex(text: string): string {
-        return crypto.createHash('sha256').update(text).digest('hex');
-    }
+    const token = jwt.sign(userParsed, process.env.JWT_PSSWD!, {
+      expiresIn: "4h",
+    });
+    return { token, user: userParsed };
+  }
 
-    public static async findUserByDNI(dniU: string): Promise<User | null> {
-        const userRepository = DB.getRepository(User);
-        return await userRepository.findOne({
-            where: {
-                client: {
-                    dni: dniU
-                }
-            },
+  // Encode text using sha256 and return in hex format.
+  private static encodeToSHA256Hex(text: string): string {
+    return crypto.createHash("sha256").update(text).digest("hex");
+  }
 
-            relations: ['client', 'role']
-        });
-    }
+  public static async findUserByDNI(dniU: string): Promise<User | null> {
+    const userRepository = DB.getRepository(User);
+    return await userRepository.findOne({
+      where: {
+        client: {
+          dni: dniU,
+        },
+      },
 
+      relations: ["client", "role"],
+    });
+  }
 }
