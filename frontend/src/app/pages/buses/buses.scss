@@ -1,7 +1,23 @@
 .card {
-    display: flex; // flex horizontal
-    justify-content: center; // centrar todo horizontalmente
-    align-items: flex-start; // alineación vertical arriba
-    gap: 1.25rem; // espacio lateral entre hijos (equivale a Tailwind space-x-5)
-    padding-bottom: 1rem;
+  display: flex;                 // horizontal
+  justify-content: center;       // centrado horizontal
+  align-items: flex-start;       // alineación arriba
+  gap: 1.25rem;                  // espacio entre hijos
+  padding-bottom: 1rem;
+}
+
+/* Botón de filtro solo con icono y tamaño más pequeño */
+.card ::ng-deep .p-button {
+  width: 2rem;                   // ancho menor
+  height: 2rem;                  // alto menor
+  padding: 0.25rem;              // centrado icono
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;               // reduce icono
+}
+
+/* Oculta el texto del botón */
+.card ::ng-deep .p-button .p-button-label {
+  display: none;
 }

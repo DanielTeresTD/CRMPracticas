@@ -13,7 +13,7 @@ import { GenResponse } from '../../interfaces/genResponse';
   selector: 'app-buses',
   imports: [FormsModule, Select, BusesMap],
   templateUrl: './buses.html',
-  styleUrl: './buses.scss'
+  styleUrl: './buses.scss',
 })
 export class Buses implements OnInit {
   public linesItems: Line[] | undefined;
@@ -23,7 +23,7 @@ export class Buses implements OnInit {
   public stopItemsByLine: Stop[] | undefined;
   public selectedStop: Stop | undefined;
 
-  constructor(private busesService: BusesService) { }
+  constructor(private busesService: BusesService) {}
 
   public ngOnInit() {
     this.getNameCodeLines();
@@ -32,29 +32,29 @@ export class Buses implements OnInit {
 
   private getNameCodeLines(): void {
     this.busesService.getNameCodeLines().subscribe({
-      next: res => {
+      next: (res) => {
         this.linesItems = res.data.map((line: Line) => ({
           ...line,
-          label: `${line.codLinea} --> ${line.nombreLinea}`
+          label: `${line.codLinea} --> ${line.nombreLinea}`,
         }));
       },
-      error: err => {
-        console.error("An error ocurred while getting name and code of lines: ", err);
-      }
+      error: (err) => {
+        console.error('An error ocurred while getting name and code of lines: ', err);
+      },
     });
   }
 
   private getBusStops(): void {
     this.busesService.getBusStops().subscribe({
-      next: res => {
+      next: (res) => {
         this.stopItems = res.data.map((stop: Stop) => ({
           ...stop,
-          label: `${stop.codParada} --> ${stop.nombreParada}`
+          label: `${stop.codParada} --> ${stop.nombreParada}`,
         }));
       },
-      error: err => {
-        console.error("An error ocurred while getting bus stops: ", err);
-      }
+      error: (err) => {
+        console.error('An error ocurred while getting bus stops: ', err);
+      },
     });
   }
 
@@ -67,17 +67,14 @@ export class Buses implements OnInit {
 
     const lineId = event.value.codLinea;
     this.busesService.getBusStopsByLine(lineId).subscribe({
-      next: res => {
+      next: (res) => {
         this.stopItemsByLine = this.stopItems!.filter((stop: Stop) =>
           res.data.some((codParada: number) => codParada === stop.codParada)
         );
       },
-      error: err => {
-        console.error("An error ocurred while getting bus stops by Line: ", err);
-      }
+      error: (err) => {
+        console.error('An error ocurred while getting bus stops by Line: ', err);
+      },
     });
   }
-
-
-
 }

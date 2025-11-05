@@ -1,24 +1,43 @@
-import { Request, Response } from 'express';
-import { GenResponse } from '../genResponse';
-import { HorariosService } from '../../services/busesMalaga/horarios.service';
+import { Request, Response } from "express";
+import { GenResponse } from "../genResponse";
+import { HorariosService } from "../../services/busesMalaga/horarios.service";
 
 export class HorariosController {
-    public static async storeBusSchedule(req: Request, res: Response) {
-        let resp = new GenResponse();
+  public static async storeBusSchedule(req: Request, res: Response) {
+    let resp = new GenResponse();
 
-        try {
-            await HorariosService.storeBusSchedule();
-            resp.code = 200;
-            resp.msg = "Bus schedule loaded correctly";
-        } catch (error) {
-            if (error instanceof Error) {
-                resp.msg = error.message;
-            } else {
-                resp.msg = String(error);
-            }
-            resp.code = 500;
-        }
-
-        res.json(resp);
+    try {
+      await HorariosService.storeBusSchedule();
+      resp.code = 200;
+      resp.msg = "Bus schedule loaded correctly";
+    } catch (error) {
+      if (error instanceof Error) {
+        resp.msg = error.message;
+      } else {
+        resp.msg = String(error);
+      }
+      resp.code = 500;
     }
+
+    res.json(resp);
+  }
+
+  public static async getBusStopsOrdered(req: Request, res: Response) {
+    let resp = new GenResponse();
+
+    try {
+      const lineId = Number(req.query.lineId);
+      resp.data = await HorariosService.getOrderedBusStops(lineId);
+      resp.code = 200;
+    } catch (error) {
+      if (error instanceof Error) {
+        resp.msg = error.message;
+      } else {
+        resp.msg = String(error);
+      }
+      resp.code = 500;
+    }
+
+    res.json(resp);
+  }
 }
