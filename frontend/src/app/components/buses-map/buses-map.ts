@@ -15,38 +15,53 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
   @Input() busesStopsOfLine: Stop[] | undefined;
   @Input() stop: Stop | undefined;
 
-  private busesOfLine: Location[] | undefined;
+  private allBuses: Location[] | undefined;
+  private lineBuses: Location[] | undefined;
 
   private map!: L.Map;
   private markers: L.LatLngExpression[] = [
     [36.7215, -4.42493], // Malaga
   ];
   private stopMarkersLayer: L.LayerGroup = L.layerGroup();
-  private busRouteLayer: L.LayerGroup = L.layerGroup();
+  private busesLocationsLayer: L.LayerGroup = L.layerGroup();
+
   private busStopMarker = L.icon({
     iconUrl: 'assets/icons/BusStop.png',
-
     iconSize: [35, 35],
-    iconAnchor: [17, 34], // Where icon will be displayed in the marker
-    popupAnchor: [0, -32], // relative icon anchor
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -32],
   });
+  private busMarkerD1 = L.icon({
+    iconUrl: 'assets/icons/Bus.png',
+    iconSize: [20, 14],
+    iconAnchor: [10, 12],
+    popupAnchor: [0, -32],
+  });
+  private busMarkerD2 = L.icon({
+    iconUrl: 'assets/icons/BusSent2.png',
+    iconSize: [20, 14],
+    iconAnchor: [10, 12],
+    popupAnchor: [0, -32],
+  });
+
   private defaultZoom = 14;
   private zoomOnStop = 18;
 
   constructor(private busesService: BusesService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (!this.line) {
+      this.loadAllBuses();
+    }
+  }
 
-  // Changes is an object with each key equals to input atr.
-  // If new value is passed to input, it will update that values
   ngOnChanges(changes: SimpleChanges) {
     if (changes['line']) {
+      this.stopMarkersLayer.clearLayers();
       if (changes['line'].currentValue) {
-        // Clear bus stops icons
-        this.stopMarkersLayer.clearLayers();
-        this.getBusByLine();
+        this.loadLineBuses();
       } else {
-        this.stopMarkersLayer.clearLayers();
+        this.loadAllBuses();
       }
     }
 
@@ -55,11 +70,13 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
         this.showSingleBusStop();
       } else {
         this.stopMarkersLayer.clearLayers();
+        if (this.line) {
+          this.addStopMarkers();
+        }
       }
     }
 
     if (changes['busesStopsOfLine'] && changes['busesStopsOfLine'].currentValue) {
-      this.loadRouteOfLine();
       this.addStopMarkers();
     }
   }
@@ -79,62 +96,12 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
   }
 
   private centerMap() {
-    // Create a boundary based on the markers
     const bounds = L.latLngBounds(this.markers.map((marker) => marker));
-
-    // Fit the map into the boundary
     this.map.fitBounds(bounds);
     this.map.setZoom(this.defaultZoom);
   }
 
-  private loadRouteOfLine() {
-    this.busesService.getBusStopsOrdered(this.line!.codLinea).subscribe({
-      next: (res) => {
-        const codBusStopsOrdered: number[] = res.data.map((item: Schedule) => item.codParada);
-        const vertexRoute: Array<L.LatLng> = [];
-        const visitedStops = new Set<number>(); // ← Para evitar duplicados
-
-        if (!this.busesStopsOfLine?.length) {
-          console.warn('❗ busesStopsOfLine está vacío o indefinido');
-          return;
-        }
-
-        // Recorremos las paradas ordenadas y filtramos duplicadas
-        codBusStopsOrdered.forEach((codParada) => {
-          if (visitedStops.has(codParada)) {
-            return; // Ya la procesamos, la saltamos
-          }
-          visitedStops.add(codParada);
-
-          const stop = this.busesStopsOfLine!.find((s) => s.codParada === codParada);
-          if (stop) {
-            vertexRoute.push(L.latLng(stop.lat, stop.lon));
-          }
-        });
-
-        // Dibujar la ruta en el mapa
-        const routePolyline = L.polyline(vertexRoute, {
-          color: 'blue',
-          weight: 3,
-          opacity: 0.7,
-        });
-        this.stopMarkersLayer.addLayer(routePolyline);
-
-        // Ajustar el zoom al recorrido
-        if (vertexRoute.length > 0) {
-          this.map.fitBounds(routePolyline.getBounds());
-        }
-
-        console.log(`✅ Ruta dibujada con ${vertexRoute.length} paradas únicas`);
-      },
-      error: (err) => {
-        console.error('Error while getting bus stops ordered:', err);
-      },
-    });
-  }
-
   private addStopMarkers() {
-    // Add buses stops of specific line
     if (this.busesStopsOfLine) {
       this.busesStopsOfLine.forEach((stop) => {
         const stopPos = L.latLng(stop.lat, stop.lon);
@@ -143,28 +110,51 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
       });
     }
 
-    // Add the bus stops into the map
     if (!this.map.hasLayer(this.stopMarkersLayer)) {
       this.stopMarkersLayer.addTo(this.map);
     }
   }
 
-  private getBusByLine() {
-    if (!this.line) {
-      throw Error('Line data is null');
+  private addBusesLocations(buses: Location[] | undefined, layer: L.LayerGroup) {
+    if (buses) {
+      buses.forEach((bus) => {
+        const busPos = L.latLng(bus.lat, bus.lon);
+        const icon = bus.sentido === 1 ? this.busMarkerD1 : this.busMarkerD2;
+        const marker = L.marker(busPos, {
+          icon,
+        });
+
+        layer.addLayer(marker);
+      });
     }
 
+    if (layer.getLayers().length > 0 && !this.map.hasLayer(layer)) {
+      layer.addTo(this.map);
+    }
+  }
+
+  private loadAllBuses() {
+    this.busesService.getBuses().subscribe({
+      next: (res) => {
+        if (!res.data) throw Error('Buses locations databases does not have values');
+        this.allBuses = res.data;
+        this.busesLocationsLayer.clearLayers();
+        this.addBusesLocations(this.allBuses, this.busesLocationsLayer);
+      },
+      error: (err) => console.error('Buses locations could not be obtained', err),
+    });
+  }
+
+  private loadLineBuses() {
+    if (!this.line) throw Error('Line data is null');
     this.busesService.getBusesByLine(this.line.codLinea).subscribe({
       next: (res) => {
-        if (!res.data) {
-          throw Error(`There are no buses for line ${this.line!.codLinea}`);
-        }
-
-        this.busesOfLine = res.data;
+        if (!res.data) throw Error(`There are no buses for line ${this.line!.codLinea}`);
+        this.lineBuses = res.data;
+        this.busesLocationsLayer.clearLayers();
+        this.addBusesLocations(this.lineBuses, this.busesLocationsLayer);
       },
-      error: (err) => {
-        console.error('An error ocurred while getting bus locations');
-      },
+      error: (err) => console.error('An error ocurred while getting bus locations'),
     });
   }
 

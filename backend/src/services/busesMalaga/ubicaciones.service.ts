@@ -1,12 +1,12 @@
 import { DeepPartial, Repository } from "typeorm";
 import { DB } from "../../config/typeorm";
-import { Ubicacionnes } from "../../entities/busesMalaga/ubicaciones.entity";
+import { Ubicaciones } from "../../entities/busesMalaga/ubicaciones.entity";
 import { fetchBusApiData, storeByChunks } from "./busApi.service";
 
 export class UbicacionesService {
-  private static readonly locationsRepo = DB.getRepository(Ubicacionnes);
+  private static readonly busLocationsRepo = DB.getRepository(Ubicaciones);
 
-  public static async storeLocations(): Promise<DeepPartial<Ubicacionnes>[]> {
+  public static async storeLocations(): Promise<DeepPartial<Ubicaciones>[]> {
     const limit = 200;
     const data = await fetchBusApiData(
       process.env.API_BUS_LOCATIONS!,
@@ -15,7 +15,7 @@ export class UbicacionesService {
     );
 
     const rawRecords: any[] = data.result.records;
-    const locationsParsed: DeepPartial<Ubicacionnes>[] = rawRecords.map(
+    const locationsParsed: DeepPartial<Ubicaciones>[] = rawRecords.map(
       (actLine) => ({
         codBus: actLine.codBus,
         codLinea: actLine.codLinea,
@@ -28,7 +28,7 @@ export class UbicacionesService {
     const chunkSize = 1024;
     const constraints = ["codBus", "codLinea"];
     await storeByChunks(
-      this.locationsRepo,
+      this.busLocationsRepo,
       locationsParsed,
       constraints,
       chunkSize
@@ -38,7 +38,11 @@ export class UbicacionesService {
 
   public static async getLocationsByLineId(
     lineId: number
-  ): Promise<Ubicacionnes[]> {
-    return this.locationsRepo.findBy({ codLinea: lineId });
+  ): Promise<Ubicaciones[]> {
+    return await this.busLocationsRepo.findBy({ codLinea: lineId });
+  }
+
+  public static async getLocationsBuses(): Promise<Ubicaciones[]> {
+    return await this.busLocationsRepo.find();
   }
 }

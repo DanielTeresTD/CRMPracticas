@@ -93,10 +93,19 @@ export class HorariosService {
   public static async getOrderedBusStops(
     lineId: number
   ): Promise<DeepPartial<Horarios>[]> {
-    return this.scheduleRepo.find({
-      where: { codLinea: lineId },
-      select: ["codParada"],
-      order: { secParada: "ASC" },
-    });
+    return await this.scheduleRepo.query(
+      `
+      SELECT codParada
+      FROM (
+          SELECT *,
+                ROW_NUMBER() OVER (PARTITION BY codLinea, secParada ORDER BY id) AS rn
+          FROM horarios
+          WHERE codLinea = ?
+      ) t
+      WHERE rn = 1
+      ORDER BY secParada ASC;
+      `,
+      [lineId]
+    );
   }
 }

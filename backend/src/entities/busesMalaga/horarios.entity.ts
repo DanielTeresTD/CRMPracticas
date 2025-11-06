@@ -1,6 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Unique,
+} from "typeorm";
 
 @Entity({ name: "horarios" })
+@Unique(["codLinea", "codParada", "tiempoLlegada"])
 export class Horarios {
   @PrimaryGeneratedColumn({ name: "id" })
   id!: number;
