@@ -1,8 +1,19 @@
-import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import * as L from 'leaflet';
+import { Subscription } from 'rxjs';
 
 import { Line, Stop, Location, Schedule } from '../../interfaces/buses';
 import { BusesService } from '../../services/buses.service';
+import { SocketService } from '../../services/socketService.service';
 
 @Component({
   selector: 'app-buses-map',
@@ -10,7 +21,7 @@ import { BusesService } from '../../services/buses.service';
   templateUrl: './buses-map.html',
   styleUrl: './buses-map.scss',
 })
-export class BusesMap implements OnInit, AfterViewInit, OnChanges {
+export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() line: Line | undefined;
   @Input() busesStopsOfLine: Stop[] | undefined;
   @Input() stop: Stop | undefined;
@@ -47,12 +58,19 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
   private defaultZoom = 14;
   private zoomOnStop = 18;
 
-  constructor(private busesService: BusesService) {}
+  private sub!: Subscription;
+
+  constructor(private busesService: BusesService, private socket: SocketService) {}
 
   ngOnInit() {
     if (!this.line) {
       this.loadAllBuses();
     }
+
+    this.sub = this.socket.refresh.subscribe(() => {
+      console.log('Detected new bus locations from backend');
+      if (!this.line) this.loadAllBuses();
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -79,6 +97,10 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges {
     if (changes['busesStopsOfLine'] && changes['busesStopsOfLine'].currentValue) {
       this.addStopMarkers();
     }
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
   }
 
   ngAfterViewInit() {
