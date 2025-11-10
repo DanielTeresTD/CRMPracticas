@@ -30,3 +30,16 @@ export interface Schedule {
   tiempoLlegada: string;
   secParada: number;
 }
+
+// Previous to this interface, it´s all necesary stops
+export interface InfoStop {
+  stopName: string;
+  arrivalLines: {
+    lineCode: number;
+    lineName: string;
+  }[];
+  nextArrivals?: {
+    lineCode: number;
+    estimatedTime: number;
+  }[];
+}

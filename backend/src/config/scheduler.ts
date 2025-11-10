@@ -16,7 +16,7 @@ schedule.scheduleJob("0 0 3 * * *", async () => {
   }
 });
 
-schedule.scheduleJob("* * * * *", async () => {
+schedule.scheduleJob("*/10 * * * *", async () => {
   try {
     await UbicacionesService.storeLocations();
     console.log("Job for update locations executed succesfully");

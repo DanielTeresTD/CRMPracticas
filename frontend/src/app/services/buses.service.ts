@@ -22,6 +22,12 @@ export class BusesService {
     return this.http.get<GenResponse>(`${this.apiURL}/paradas-buses/linea?lineId=${lineId}`);
   }
 
+  public getLinesAtStop(stopId: number): Observable<GenResponse> {
+    return this.http.get<GenResponse>(
+      `${this.apiURL}/lineas-buses/lineas-en-parada?stopId=${stopId}`
+    );
+  }
+
   public getBuses(): Observable<GenResponse> {
     return this.http.get<GenResponse>(`${this.apiURL}/ubicaciones-buses/buses`);
   }

@@ -1,1 +1,20 @@
-<div id="map" style="height: 660px;width: 100%;"></div>
+<p-splitter [panelSizes]="[20, 80]" [style]="{ height: '600px'}" class="mb-8">
+  <ng-template #panel>
+      <div class="info-stop-panel">
+        @if (infoStop) {
+          <h2>{{ infoStop.stopName }}</h2>
+          <h3>Líneas que pasan:</h3>
+          <ul>
+            @for (line of infoStop.arrivalLines; track line.lineCode) {
+              <li>{{ line.lineName }} (Código: {{ line.lineCode }})</li>
+            }
+          </ul>
+        }
+      </div>
+  </ng-template>
+  <ng-template #panel>
+      <div id="map" style="height: 660px;width: 100%;"></div>
+  </ng-template>
+
+</p-splitter>
+

@@ -6,8 +6,6 @@ import { Select } from 'primeng/select';
 import { Line, Stop } from '../../interfaces/buses';
 import { BusesService } from '../../services/buses.service';
 import { BusesMap } from '../../components/buses-map/buses-map';
-import { Observable } from 'rxjs';
-import { GenResponse } from '../../interfaces/genResponse';
 
 @Component({
   selector: 'app-buses',

@@ -11,13 +11,16 @@ import {
 import * as L from 'leaflet';
 import { Subscription } from 'rxjs';
 
-import { Line, Stop, Location, Schedule } from '../../interfaces/buses';
+import { Line, Stop, Location, InfoStop } from '../../interfaces/buses';
 import { BusesService } from '../../services/buses.service';
 import { SocketService } from '../../services/socketService.service';
 
+import { SplitterModule } from 'primeng/splitter';
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-buses-map',
-  imports: [],
+  imports: [SplitterModule, CommonModule],
   templateUrl: './buses-map.html',
   styleUrl: './buses-map.scss',
 })
@@ -26,17 +29,17 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() busesStopsOfLine: Stop[] | undefined;
   @Input() stop: Stop | undefined;
 
+  infoStop: InfoStop | undefined;
+
   private allBuses: Location[] | undefined;
   private lineBuses: Location[] | undefined;
 
   private map!: L.Map;
-  private markers: L.LatLngExpression[] = [
-    [36.7215, -4.42493], // Malaga
-  ];
+  private markers: L.LatLngExpression[] = [[36.7215, -4.42493]];
   private stopMarkersLayer: L.LayerGroup = L.layerGroup();
   private busesLocationsLayer: L.LayerGroup = L.layerGroup();
 
-  private busStopMarker = L.icon({
+  private StopMarker = L.icon({
     iconUrl: 'assets/icons/BusStop.png',
     iconSize: [35, 35],
     iconAnchor: [17, 34],
@@ -44,15 +47,15 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   });
   private busMarkerD1 = L.icon({
     iconUrl: 'assets/icons/Bus.png',
-    iconSize: [20, 14],
-    iconAnchor: [10, 12],
-    popupAnchor: [0, -32],
+    iconSize: [24, 17],
+    iconAnchor: [12, 13],
+    popupAnchor: [0, -14],
   });
   private busMarkerD2 = L.icon({
     iconUrl: 'assets/icons/BusSent2.png',
-    iconSize: [20, 14],
-    iconAnchor: [10, 12],
-    popupAnchor: [0, -32],
+    iconSize: [24, 17],
+    iconAnchor: [12, 13],
+    popupAnchor: [0, -14],
   });
 
   private defaultZoom = 14;
@@ -60,7 +63,11 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   private sub!: Subscription;
 
-  constructor(private busesService: BusesService, private socket: SocketService) {}
+  constructor(
+    private busesService: BusesService,
+    private socket: SocketService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     if (!this.line) {
@@ -68,7 +75,6 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     }
 
     this.sub = this.socket.refresh.subscribe(() => {
-      console.log('Detected new bus locations from backend');
       if (!this.line) this.loadAllBuses();
     });
   }
@@ -83,14 +89,16 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
       }
     }
 
-    if (changes['stop'] && !changes['line']) {
-      if (changes['stop'].currentValue) {
-        this.showSingleBusStop();
-      } else {
-        this.stopMarkersLayer.clearLayers();
-        if (this.line) {
-          this.addStopMarkers();
-        }
+    if (changes['stop'] && changes['stop'].currentValue) {
+      this.showSingleBusStop();
+      if (this.stop && this.line) {
+        this.infoStop = this.getInfoStop(this.stop, [this.line]);
+      }
+    } else if (!changes['stop']?.currentValue) {
+      this.infoStop = undefined;
+      this.stopMarkersLayer.clearLayers();
+      if (this.line) {
+        this.addStopMarkers();
       }
     }
 
@@ -127,7 +135,11 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     if (this.busesStopsOfLine) {
       this.busesStopsOfLine.forEach((stop) => {
         const stopPos = L.latLng(stop.lat, stop.lon);
-        const marker = L.marker(stopPos, { icon: this.busStopMarker });
+        const marker = L.marker(stopPos, { icon: this.StopMarker });
+        marker.on('click', () => {
+          this.onStopClick(stop);
+        });
+
         this.stopMarkersLayer.addLayer(marker);
       });
     }
@@ -142,10 +154,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
       buses.forEach((bus) => {
         const busPos = L.latLng(bus.lat, bus.lon);
         const icon = bus.sentido === 1 ? this.busMarkerD1 : this.busMarkerD2;
-        const marker = L.marker(busPos, {
-          icon,
-        });
-
+        const marker = L.marker(busPos, { icon });
         layer.addLayer(marker);
       });
     }
@@ -183,9 +192,46 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private showSingleBusStop() {
     this.stopMarkersLayer.clearLayers();
     const stopPos = L.latLng(this.stop!.lat, this.stop!.lon);
-    const marker = L.marker(stopPos, { icon: this.busStopMarker });
+    const marker = L.marker(stopPos, { icon: this.StopMarker });
     this.map.flyTo(stopPos, this.zoomOnStop);
+    marker.on('click', () => {
+      this.onStopClick(this.stop!);
+    });
     this.stopMarkersLayer.addLayer(marker);
     this.stopMarkersLayer.addTo(this.map);
+  }
+
+  private getInfoStop(
+    stop: Stop,
+    linesOfStop: { codLinea: number; nombreLinea: string }[]
+  ): InfoStop {
+    return {
+      stopName: stop.nombreParada,
+      arrivalLines: linesOfStop.map((line) => ({
+        lineCode: line.codLinea,
+        lineName: line.nombreLinea,
+      })),
+      nextArrivals: undefined,
+    };
+  }
+
+  private onStopClick(stop: Stop) {
+    this.stop = stop; // actualiza la parada seleccionada
+
+    this.busesService.getLinesAtStop(stop.codParada).subscribe({
+      next: (res) => {
+        const lines = res.data; // debería ser un array de { codLinea, nombreLinea }
+
+        this.infoStop = this.getInfoStop(stop, lines);
+
+        this.showSingleBusStop(); // muestra solo esa parada
+        const stopPos = L.latLng(stop.lat, stop.lon);
+        this.map.flyTo(stopPos, this.zoomOnStop);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Finding lines at stop went wrong', err);
+      },
+    });
   }
 }
