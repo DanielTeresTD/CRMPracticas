@@ -28,6 +28,10 @@ export class BusesService {
     );
   }
 
+  public forceReloadBusLocations(): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/ubicaciones-buses/`);
+  }
+
   public getBuses(): Observable<GenResponse> {
     return this.http.get<GenResponse>(`${this.apiURL}/ubicaciones-buses/buses`);
   }

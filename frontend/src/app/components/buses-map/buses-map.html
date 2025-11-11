@@ -1,20 +1,29 @@
-<p-splitter [panelSizes]="[20, 80]" [style]="{ height: '600px'}" class="mb-8">
+<p-splitter [panelSizes]="panelSizes" [style]="{ height: '660px' }" class="mb-8">
   <ng-template #panel>
-      <div class="info-stop-panel">
-        @if (infoStop) {
-          <h2>{{ infoStop.stopName }}</h2>
-          <h3>Líneas que pasan:</h3>
-          <ul>
-            @for (line of infoStop.arrivalLines; track line.lineCode) {
-              <li>{{ line.lineName }} (Código: {{ line.lineCode }})</li>
-            }
-          </ul>
+    @if (infoStop) {
+    <div class="info-stop-panel">
+      <button class="close-btn" (click)="closeInfoPanel()">✕</button>
+
+      <h2 class="stop-title">
+        <span class="stop-code">{{ infoStop.stopCode }}</span>
+        <span class="stop-name">{{ infoStop.stopName }}</span>
+      </h2>
+
+      <h3>Líneas que pasan:</h3>
+      <ul>
+        @for (line of infoStop.arrivalLines; track line.lineCode) {
+        <li>
+          <div class="line-info">
+            <span class="line-code">{{ line.lineCode }}</span>
+            <span class="line-name">{{ line.lineName }}</span>
+          </div>
+        </li>
         }
-      </div>
+      </ul>
+    </div>
+    }
   </ng-template>
   <ng-template #panel>
-      <div id="map" style="height: 660px;width: 100%;"></div>
+    <div id="map" style="height: 660px; width: 100%"></div>
   </ng-template>
-
 </p-splitter>
-

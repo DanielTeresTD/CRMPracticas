@@ -30,6 +30,10 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() stop: Stop | undefined;
 
   infoStop: InfoStop | undefined;
+  private readonly maxSizeInfoStop = 99.999;
+  private readonly minSizeInfoStop = 0.001;
+  private readonly sizeInfoStop = 19.999;
+  public panelSizes = [this.minSizeInfoStop, this.maxSizeInfoStop];
 
   private allBuses: Location[] | undefined;
   private lineBuses: Location[] | undefined;
@@ -93,6 +97,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
       this.showSingleBusStop();
       if (this.stop && this.line) {
         this.infoStop = this.getInfoStop(this.stop, [this.line]);
+        this.cdr.detectChanges();
       }
     } else if (!changes['stop']?.currentValue) {
       this.infoStop = undefined;
@@ -123,6 +128,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(this.map);
+    this.addReloadButton();
   }
 
   private centerMap() {
@@ -207,6 +213,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   ): InfoStop {
     return {
       stopName: stop.nombreParada,
+      stopCode: stop.codParada,
       arrivalLines: linesOfStop.map((line) => ({
         lineCode: line.codLinea,
         lineName: line.nombreLinea,
@@ -223,15 +230,68 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         const lines = res.data; // debería ser un array de { codLinea, nombreLinea }
 
         this.infoStop = this.getInfoStop(stop, lines);
+        this.panelSizes = [this.sizeInfoStop, this.maxSizeInfoStop - this.sizeInfoStop];
+        this.cdr.detectChanges();
 
         this.showSingleBusStop(); // muestra solo esa parada
         const stopPos = L.latLng(stop.lat, stop.lon);
         this.map.flyTo(stopPos, this.zoomOnStop);
-        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Finding lines at stop went wrong', err);
       },
     });
+  }
+
+  public closeInfoPanel() {
+    this.infoStop = undefined;
+    this.panelSizes = [this.minSizeInfoStop, this.maxSizeInfoStop];
+  }
+
+  public forceReloadLocations() {
+    this.busesService.forceReloadBusLocations().subscribe({
+      next: (res) => {
+        this.line ? this.loadLineBuses() : this.loadAllBuses();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error while forcing reload busData', err);
+      },
+    });
+  }
+
+  private addReloadButton() {
+    const reloadControl = L.Control.extend({
+      options: { position: 'topleft' },
+
+      onAdd: (map: L.Map) => {
+        const container = L.DomUtil.create(
+          'div',
+          'leaflet-bar leaflet-control leaflet-control-custom'
+        );
+
+        container.style.backgroundColor = 'white';
+        container.style.width = '34px';
+        container.style.height = '30px';
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+        container.style.cursor = 'pointer';
+        container.style.color = 'black';
+        container.style.fontSize = '18px';
+        container.title = 'Reload buses locations';
+        container.innerHTML = '⟳';
+
+        container.onclick = () => {
+          this.forceReloadLocations();
+        };
+
+        // Evitar que el clic se propague al mapa
+        L.DomEvent.disableClickPropagation(container);
+        return container;
+      },
+    });
+
+    this.map.addControl(new reloadControl());
   }
 }

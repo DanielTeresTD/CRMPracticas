@@ -31,9 +31,11 @@ export interface Schedule {
   secParada: number;
 }
 
-// Previous to this interface, it´s all necesary stops
+// Previous to this interface, are the interfaces of
+// how data is received from back
 export interface InfoStop {
   stopName: string;
+  stopCode: number;
   arrivalLines: {
     lineCode: number;
     lineName: string;

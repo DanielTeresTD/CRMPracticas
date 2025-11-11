@@ -7,7 +7,7 @@ export class UbicacionesController {
     let resp = new GenResponse();
 
     try {
-      resp.data = await UbicacionesService.storeLocations();
+      await UbicacionesService.storeLocations();
       resp.code = 200;
     } catch (error) {
       if (error instanceof Error) {
