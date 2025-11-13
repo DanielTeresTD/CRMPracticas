@@ -27,8 +27,8 @@ export interface Location {
 export interface Schedule {
   codLinea: number;
   codParada: number;
-  tiempoLlegada: string;
   secParada: number;
+  sentido: number;
 }
 
 // Previous to this interface, are the interfaces of

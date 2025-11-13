@@ -9,9 +9,9 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import * as L from 'leaflet';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
-import { Line, Stop, Location, InfoStop } from '../../interfaces/buses';
+import { Line, Stop, Location, InfoStop, Schedule } from '../../interfaces/buses';
 import { BusesService } from '../../services/buses.service';
 import { SocketService } from '../../services/socketService.service';
 
@@ -52,13 +52,13 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private busMarkerD1 = L.icon({
     iconUrl: 'assets/icons/Bus.png',
     iconSize: [24, 17],
-    iconAnchor: [12, 13],
+    iconAnchor: [12, 8],
     popupAnchor: [0, -14],
   });
   private busMarkerD2 = L.icon({
     iconUrl: 'assets/icons/BusSent2.png',
     iconSize: [24, 17],
-    iconAnchor: [12, 13],
+    iconAnchor: [12, 8],
     popupAnchor: [0, -14],
   });
 
@@ -191,7 +191,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         this.busesLocationsLayer.clearLayers();
         this.addBusesLocations(this.lineBuses, this.busesLocationsLayer);
       },
-      error: (err) => console.error('An error ocurred while getting bus locations'),
+      error: (err) => console.error('An error ocurred while getting bus locations: ', err),
     });
   }
 
@@ -209,7 +209,8 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   private getInfoStop(
     stop: Stop,
-    linesOfStop: { codLinea: number; nombreLinea: string }[]
+    linesOfStop: { codLinea: number; nombreLinea: string }[],
+    nextArrivals?: { lineCode: number; estimatedTime: number }[]
   ): InfoStop {
     return {
       stopName: stop.nombreParada,
@@ -218,34 +219,162 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         lineCode: line.codLinea,
         lineName: line.nombreLinea,
       })),
-      nextArrivals: undefined,
+      nextArrivals: nextArrivals,
     };
   }
 
+  private calculateETAForLine65(
+    stop: Stop
+  ): Observable<{ lineCode: number; estimatedTime: number }[]> {
+    return new Observable((observer) => {
+      const lineId = 65;
+
+      this.busesService.getBusStopsOrdered(lineId).subscribe({
+        next: (res) => {
+          const stops: Stop[] = (this.busesStopsOfLine || []).filter((s) =>
+            res.data.some((o: Schedule) => o.codParada === s.codParada)
+          );
+
+          if (stops.length < 2) {
+            observer.next([]);
+            observer.complete();
+            return;
+          }
+
+          const segmentDistances = this.computeStopDistances(stops);
+          const estimatedTimes: number[] = Array(stops.length).fill(Infinity);
+          const buses = (this.lineBuses || []).filter((b) => b.codLinea === lineId);
+          if (buses.length === 0) {
+            observer.next([]);
+            observer.complete();
+            return;
+          }
+
+          for (const bus of buses) {
+            let nearestIndex = 0;
+            let minDistance = Infinity;
+
+            for (let i = 0; i < stops.length; i++) {
+              let d = this.calculateDistance(bus.lat, bus.lon, stops[i].lat, stops[i].lon);
+
+              if (d < minDistance) {
+                minDistance = d;
+                nearestIndex = i;
+              }
+            }
+
+            const avgSpeed = 40;
+            let timeToNearest = (minDistance / avgSpeed) * 60;
+
+            if (bus.sentido !== res.data[nearestIndex].sentido) {
+              timeToNearest += 60;
+            }
+
+            // Penalización si ya pasó la parada (mismo sentido)
+            // if (bus.sentido === res.data[nearestIndex].sentido && nearestIndex < busIndexInRoute) {
+            //   timeToNearest += 60;
+            // }
+
+            if (timeToNearest < estimatedTimes[nearestIndex]) {
+              estimatedTimes[nearestIndex] = timeToNearest;
+            }
+
+            let accumulated = timeToNearest;
+            for (let i = nearestIndex + 1; i < stops.length; i++) {
+              accumulated += (segmentDistances[i - 1] / avgSpeed) * 60;
+              if (accumulated < estimatedTimes[i]) {
+                estimatedTimes[i] = accumulated;
+              }
+            }
+          }
+
+          const idx = stops.findIndex((s) => s.codParada === stop.codParada);
+          if (idx !== -1 && estimatedTimes[idx] !== Infinity) {
+            observer.next([
+              { lineCode: lineId, estimatedTime: parseFloat(estimatedTimes[idx].toFixed(1)) },
+            ]);
+          } else {
+            observer.next([]);
+          }
+          observer.complete();
+        },
+        error: (err) => observer.error(err),
+      });
+    });
+  }
+
+  // Calculate distance between stops
+  private computeStopDistances(stops: Stop[]): number[] {
+    const distances: number[] = [];
+    for (let i = 0; i < stops.length - 1; i++) {
+      const dist = this.calculateDistance(
+        stops[i].lat,
+        stops[i].lon,
+        stops[i + 1].lat,
+        stops[i + 1].lon
+      );
+      distances.push(dist);
+    }
+    return distances;
+  }
+
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371;
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
+  }
+
   private onStopClick(stop: Stop) {
-    this.stop = stop; // actualiza la parada seleccionada
+    this.stop = stop;
 
     this.busesService.getLinesAtStop(stop.codParada).subscribe({
       next: (res) => {
-        const lines = res.data; // debería ser un array de { codLinea, nombreLinea }
+        const lines = res.data;
 
-        this.infoStop = this.getInfoStop(stop, lines);
-        this.panelSizes = [this.sizeInfoStop, this.maxSizeInfoStop - this.sizeInfoStop];
-        this.cdr.detectChanges();
+        if (lines.some((l: Line) => l.codLinea === 65)) {
+          this.calculateETAForLine65(stop).subscribe({
+            next: (etaArrivals) => {
+              // Actualizamos infoStop con el tiempo estimado
+              this.infoStop = this.getInfoStop(stop, lines, etaArrivals);
+              this.panelSizes = [this.sizeInfoStop, this.maxSizeInfoStop - this.sizeInfoStop];
+              this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error calculando ETA línea 65:', err),
+          });
+        } else {
+          // Mostramos el panel base mientras se calculan los tiempos
+          this.infoStop = this.getInfoStop(stop, lines);
+          this.panelSizes = [this.sizeInfoStop, this.maxSizeInfoStop - this.sizeInfoStop];
+          this.cdr.detectChanges();
+        }
 
-        this.showSingleBusStop(); // muestra solo esa parada
+        this.showSingleBusStop();
         const stopPos = L.latLng(stop.lat, stop.lon);
         this.map.flyTo(stopPos, this.zoomOnStop);
       },
-      error: (err) => {
-        console.error('Finding lines at stop went wrong', err);
-      },
+      error: (err) => console.error('Finding lines at stop went wrong', err),
     });
   }
 
   public closeInfoPanel() {
     this.infoStop = undefined;
     this.panelSizes = [this.minSizeInfoStop, this.maxSizeInfoStop];
+    this.stopMarkersLayer.clearLayers();
+    if (this.line && this.busesStopsOfLine) {
+      this.addStopMarkers();
+    }
   }
 
   public forceReloadLocations() {
@@ -293,5 +422,15 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     });
 
     this.map.addControl(new reloadControl());
+  }
+
+  trackByLineCode(index: number, line: { lineCode: number }) {
+    return line.lineCode;
+  }
+
+  getEstimatedTime(lineCode: number): string {
+    if (!this.infoStop?.nextArrivals) return '--';
+    const arrival = this.infoStop.nextArrivals.find((a) => a.lineCode === lineCode);
+    return arrival ? arrival.estimatedTime.toFixed(0) + ' min' : '--';
   }
 }

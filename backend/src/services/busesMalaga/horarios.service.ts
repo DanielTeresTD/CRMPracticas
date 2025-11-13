@@ -25,7 +25,7 @@ export class HorariosService {
       stopTimesColumns
     );
 
-    const tripsDataColumns = ["trip_id", "route_id"];
+    const tripsDataColumns = ["trip_id", "route_id", "direction_id"];
     const tripsData = await this.readAndParseCSV(
       path.join(this.routeToCsvFiles, "trips.csv"),
       tripsDataColumns
@@ -36,23 +36,33 @@ export class HorariosService {
       tripsData.map((trip) => [(trip as any).trip_id, (trip as any).route_id])
     );
 
+    // Crear un mapa trip_id → direction_id
+    const tripIdToDirectionId = new Map(
+      tripsData.map((trip) => [
+        (trip as any).trip_id,
+        (trip as any).direction_id,
+      ])
+    );
+
     const horariosToInsert: DeepPartial<Horarios>[] = [];
 
     // Generate time arrivals for each line and bus stop
     for (const stop of stopTimesData) {
       const stopAny = stop as any;
       const routeId = tripIdToRouteId.get(stopAny.trip_id);
-      if (!routeId) continue;
+      const directionId = tripIdToDirectionId.get(stopAny.trip_id);
+
+      if (!routeId || directionId === undefined) continue;
 
       horariosToInsert.push({
         codLinea: Number(routeId),
         codParada: Number(stopAny.stop_id),
-        tiempoLlegada: stopAny.arrival_time,
-        secParada: stopAny.stop_sequence,
+        secParada: Number(stopAny.stop_sequence),
+        sentido: Number(directionId) + 1,
       });
     }
 
-    const constraints = ["codLinea", "codParada", "tiempoLlegada"];
+    const constraints = ["codLinea", "codParada"];
     const chunkSize = 10_000;
     await storeByChunks(
       this.scheduleRepo,
@@ -93,19 +103,12 @@ export class HorariosService {
   public static async getOrderedBusStops(
     lineId: number
   ): Promise<DeepPartial<Horarios>[]> {
-    return await this.scheduleRepo.query(
-      `
-      SELECT codParada
-      FROM (
-          SELECT *,
-                ROW_NUMBER() OVER (PARTITION BY codLinea, secParada ORDER BY id) AS rn
-          FROM horarios
-          WHERE codLinea = ?
-      ) t
-      WHERE rn = 1
-      ORDER BY secParada ASC;
-      `,
-      [lineId]
-    );
+    return await this.scheduleRepo.find({
+      where: { codLinea: lineId },
+      order: {
+        sentido: "ASC",
+        secParada: "ASC",
+      },
+    });
   }
 }

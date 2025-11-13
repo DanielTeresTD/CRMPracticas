@@ -1,4 +1,5 @@
 <p-splitter [panelSizes]="panelSizes" [style]="{ height: '660px' }" class="mb-8">
+  <!-- Panel de info de parada -->
   <ng-template #panel>
     @if (infoStop) {
     <div class="info-stop-panel">
@@ -17,12 +18,17 @@
             <span class="line-code">{{ line.lineCode }}</span>
             <span class="line-name">{{ line.lineName }}</span>
           </div>
+          <div class="arrival-time">
+            {{ getEstimatedTime(line.lineCode) }}
+          </div>
         </li>
         }
       </ul>
     </div>
     }
   </ng-template>
+
+  <!-- Panel de mapa -->
   <ng-template #panel>
     <div id="map" style="height: 660px; width: 100%"></div>
   </ng-template>
