@@ -68,7 +68,11 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private sub!: Subscription;
 
   // Nuevo mapa para guardar ETA precalculadas de la línea 65
-  private etaLine65: { [codParada: number]: number } = {};
+  private ETALine: { [codParada: number]: number } = {};
+
+  // Show message last update on map
+  private lastUpdateContainer!: HTMLDivElement;
+  private lastUpdateTime: string = '';
 
   constructor(
     private busesService: BusesService,
@@ -82,7 +86,10 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     }
 
     this.sub = this.socket.refresh.subscribe(() => {
-      if (!this.line) this.loadAllBuses();
+      if (!this.line) {
+        this.loadAllBuses();
+        this.updateLastUpdateTime();
+      }
     });
   }
 
@@ -113,7 +120,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     if (changes['busesStopsOfLine'] && changes['busesStopsOfLine'].currentValue) {
       this.addStopMarkers();
       if (this.lineBuses?.length && this.line?.codLinea === 65) {
-        this.precalculateETA65();
+        this.calculateETA();
       }
     }
   }
@@ -125,6 +132,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   ngAfterViewInit() {
     this.initMap();
     this.centerMap();
+    this.initLastUpdateBox();
   }
 
   private initMap() {
@@ -165,7 +173,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     if (buses) {
       buses.forEach((bus) => {
         const busPos = L.latLng(bus.lat, bus.lon);
-        const icon = bus.sentido === 1 ? this.busMarkerD1 : this.busMarkerD2;
+        const icon = bus.sentido === 2 ? this.busMarkerD1 : this.busMarkerD2;
         const marker = L.marker(busPos, { icon });
         layer.addLayer(marker);
       });
@@ -230,7 +238,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   }
 
   // PRECÁLCULO DE ETA PARA LÍNEA 65
-  private precalculateETA65() {
+  private calculateETA() {
     const lineId = 65;
     if (!this.busesStopsOfLine || !this.lineBuses) return;
 
@@ -245,39 +253,30 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
         if (stops.length < 2) return;
 
-        const segmentDistances = this.computeStopDistances(stops);
+        const disanceBetweenStops = this.computeStopDistances(stops);
         const estimatedTimes: number[] = Array(stops.length).fill(Number.MAX_VALUE);
         const buses = this.lineBuses!;
         if (buses.length === 0) return;
 
+        // km/h
+        const avgSpeed = 35;
         for (const bus of buses) {
-          let nearestIndex = 0;
-          let minDistance = Number.MAX_VALUE;
-          for (let i = 0; i < stops.length; i++) {
-            const d = this.calculateDistance(bus.lat, bus.lon, stops[i].lat, stops[i].lon);
-            if (d < minDistance) {
-              minDistance = d;
-              nearestIndex = i;
-            }
-          }
-
-          const avgSpeed = 40; // km/h
-          let accumulatedTime = (minDistance / avgSpeed) * 60; // tiempo en minutos
-
-          for (let i = 0; i < stops.length; i++) {
-            const idx = (nearestIndex + i) % stops.length;
-            if (accumulatedTime < estimatedTimes[idx]) {
-              estimatedTimes[idx] = accumulatedTime;
-            }
-            accumulatedTime += (segmentDistances[idx] / avgSpeed) * 60;
-          }
+          const [minDistance, nearestIndex] = this.findNearestBusStop(stops, bus.lat, bus.lon);
+          this.ETAToBusStops(
+            stops,
+            estimatedTimes,
+            disanceBetweenStops,
+            minDistance,
+            nearestIndex,
+            avgSpeed
+          );
         }
 
         // Guardar ETAs en el mapa
-        this.etaLine65 = {};
+        this.ETALine = {};
         stops.forEach((s, i) => {
           if (estimatedTimes[i] !== Number.MAX_VALUE) {
-            this.etaLine65[s.codParada] = parseFloat(estimatedTimes[i].toFixed(1));
+            this.ETALine[s.codParada] = parseFloat(estimatedTimes[i].toFixed(1));
           }
         });
       },
@@ -285,15 +284,51 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
+  private ETAToBusStops(
+    stops: Stop[],
+    estimatedTimes: number[],
+    disanceBetweenStops: number[],
+    minBusDistance: number,
+    nearestIdx: number,
+    avgSpeed: number
+  ) {
+    // minutes
+    let accumulatedTime = (minBusDistance / avgSpeed) * 60;
+
+    for (let i = 0; i < stops.length; i++) {
+      const idx = (nearestIdx + i) % stops.length;
+      if (accumulatedTime < estimatedTimes[idx]) {
+        estimatedTimes[idx] = accumulatedTime;
+      }
+      accumulatedTime += (disanceBetweenStops[idx] / avgSpeed) * 60;
+    }
+  }
+
+  private findNearestBusStop(stops: Stop[], busLat: number, busLon: number): [number, number] {
+    let nearestIndex = 0;
+    let minDistance = Number.MAX_VALUE;
+    // Search nearest bus stop
+    for (let i = 0; i < stops.length; i++) {
+      const d = this.calculateDistance(busLat, busLon, stops[i].lat, stops[i].lon);
+      if (d < minDistance) {
+        minDistance = d;
+        nearestIndex = i;
+      }
+    }
+
+    return [minDistance, nearestIndex];
+  }
+
   // Calculate distance between stops
   private computeStopDistances(stops: Stop[]): number[] {
     const distances: number[] = [];
-    for (let i = 0; i < stops.length - 1; i++) {
+    for (let i = 0; i < stops.length; i++) {
+      const idxPlus1 = (i + 1) % stops.length;
       const dist = this.calculateDistance(
         stops[i].lat,
         stops[i].lon,
-        stops[i + 1].lat,
-        stops[i + 1].lon
+        stops[idxPlus1].lat,
+        stops[idxPlus1].lon
       );
       distances.push(dist);
     }
@@ -310,8 +345,8 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         Math.cos(this.deg2rad(lat2)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+
+    return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   private deg2rad(deg: number): number {
@@ -327,8 +362,8 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         let nextArrivals: { lineCode: number; estimatedTime: number }[] | undefined;
 
         // Solo agregar ETA precalculada si es línea 65
-        if (this.line?.codLinea === 65 && this.etaLine65[stop.codParada] != null) {
-          nextArrivals = [{ lineCode: 65, estimatedTime: this.etaLine65[stop.codParada] }];
+        if (this.line?.codLinea === 65 && this.ETALine[stop.codParada] != null) {
+          nextArrivals = [{ lineCode: 65, estimatedTime: this.ETALine[stop.codParada] }];
         }
 
         this.infoStop = this.getInfoStop(stop, lines, nextArrivals);
@@ -356,6 +391,8 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     this.busesService.forceReloadBusLocations().subscribe({
       next: (res) => {
         this.line ? this.loadLineBuses() : this.loadAllBuses();
+        this.loadAllBuses();
+        this.updateLastUpdateTime();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -407,5 +444,37 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     if (!this.infoStop?.nextArrivals) return '--';
     const arrival = this.infoStop.nextArrivals.find((a) => a.lineCode === lineCode);
     return arrival ? arrival.estimatedTime.toFixed(0) + ' min' : '--';
+  }
+
+  private initLastUpdateBox() {
+    const LastUpdateControl = L.Control.extend({
+      options: { position: 'topright' },
+      onAdd: (map: L.Map) => {
+        this.lastUpdateContainer = L.DomUtil.create('div', 'last-update-control');
+        this.lastUpdateContainer.style.backgroundColor = 'white';
+        this.lastUpdateContainer.style.padding = '6px 10px';
+        this.lastUpdateContainer.style.fontSize = '13px';
+        this.lastUpdateContainer.style.fontWeight = 'bold';
+        this.lastUpdateContainer.style.boxShadow = '0 0 6px rgba(0,0,0,0.2)';
+        L.DomEvent.disableClickPropagation(this.lastUpdateContainer);
+
+        this.updateLastUpdateTime(); // Inicializamos con la hora actual
+        return this.lastUpdateContainer;
+      },
+    });
+
+    this.map.addControl(new LastUpdateControl());
+  }
+
+  private updateLastUpdateTime() {
+    this.lastUpdateTime = new Date().toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    if (this.lastUpdateContainer) {
+      this.lastUpdateContainer.innerHTML = `Last update:<br>${this.lastUpdateTime}`;
+    }
   }
 }
