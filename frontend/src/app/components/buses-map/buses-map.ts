@@ -105,10 +105,10 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
       if (changes['line'].currentValue) {
         this.loadLineBuses();
       } else {
+        if (this.infoStop || this.busScatterChart) this.closeInfoPanel();
         this.loadAllBuses();
       }
     }
-
     if (changes['stop'] && changes['stop'].currentValue) {
       this.showSingleBusStop();
       if (this.stop && this.line) {

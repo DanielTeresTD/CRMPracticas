@@ -37,12 +37,7 @@ export class UbicacionesService {
       chunkSize
     );
     // Store logs bus locations
-    await storeByChunks(
-      this.busLocationsLogsRepo,
-      locationsParsed,
-      [],
-      chunkSize
-    );
+    await this.busLocationsLogsRepo.save(locationsParsed, { chunk: chunkSize });
     return locationsParsed;
   }
 
