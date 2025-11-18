@@ -25,6 +25,12 @@
         }
       </ul>
     </div>
+    } @else {
+    <div class="info-stop-panel">
+      <button class="close-btn" (click)="closeInfoPanel()">✕</button>
+      <canvas id="bus-locations-logs"></canvas>
+    </div>
+
     }
   </ng-template>
 

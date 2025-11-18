@@ -43,4 +43,8 @@ export class BusesService {
   public getBusStopsOrdered(lineId: number): Observable<GenResponse> {
     return this.http.get<GenResponse>(`${this.apiURL}/horarios/paradas-orden?lineId=${lineId}`);
   }
+
+  public getBusLocationsLog(busId: number): Observable<GenResponse> {
+    return this.http.get<GenResponse>(`${this.apiURL}/ubicaciones-buses/bus-logs?busId=${busId}`);
+  }
 }

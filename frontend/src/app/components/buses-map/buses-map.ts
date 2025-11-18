@@ -18,6 +18,9 @@ import { SocketService } from '../../services/socketService.service';
 import { SplitterModule } from 'primeng/splitter';
 import { CommonModule } from '@angular/common';
 
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
 @Component({
   selector: 'app-buses-map',
   imports: [SplitterModule, CommonModule],
@@ -33,6 +36,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   private readonly maxSizeInfoStop = 99.999;
   private readonly minSizeInfoStop = 0.001;
   private readonly sizeInfoStop = 19.999;
+  private readonly sizeChartLocations = 39.999;
   public panelSizes = [this.minSizeInfoStop, this.maxSizeInfoStop];
 
   private allBuses: Location[] | undefined;
@@ -73,6 +77,8 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   // Show message last update on map
   private lastUpdateContainer!: HTMLDivElement;
   private lastUpdateTime: string = '';
+
+  private busScatterChart?: Chart;
 
   constructor(
     private busesService: BusesService,
@@ -175,6 +181,9 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
         const busPos = L.latLng(bus.lat, bus.lon);
         const icon = bus.sentido === 2 ? this.busMarkerD1 : this.busMarkerD2;
         const marker = L.marker(busPos, { icon });
+        marker.on('click', () => {
+          this.onBusClick(bus.codBus);
+        });
         layer.addLayer(marker);
       });
     }
@@ -237,7 +246,6 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     };
   }
 
-  // PRECÁLCULO DE ETA PARA LÍNEA 65
   private calculateETA() {
     const lineId = 65;
     if (!this.busesStopsOfLine || !this.lineBuses) return;
@@ -272,7 +280,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
           );
         }
 
-        // Guardar ETAs en el mapa
+        // Save ETA for each bus stop
         this.ETALine = {};
         stops.forEach((s, i) => {
           if (estimatedTimes[i] !== Number.MAX_VALUE) {
@@ -380,6 +388,7 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   public closeInfoPanel() {
     this.infoStop = undefined;
+    this.busScatterChart?.destroy();
     this.panelSizes = [this.minSizeInfoStop, this.maxSizeInfoStop];
     this.stopMarkersLayer.clearLayers();
     if (this.line && this.busesStopsOfLine) {
@@ -476,5 +485,89 @@ export class BusesMap implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     if (this.lastUpdateContainer) {
       this.lastUpdateContainer.innerHTML = `Last update:<br>${this.lastUpdateTime}`;
     }
+  }
+
+  private onBusClick(busId: number) {
+    this.infoStop = undefined;
+    this.busesService.getBusLocationsLog(busId).subscribe({
+      next: (res) => {
+        if (!res.data) throw Error('No logs for that bus selected were found');
+
+        const busPositions = res.data.map((bus: Location) => ({
+          x: bus.lon,
+          y: bus.lat,
+        }));
+        this.cdr.detectChanges();
+        this.panelSizes = [this.sizeChartLocations, this.maxSizeInfoStop - this.sizeChartLocations];
+        this.cdr.detectChanges();
+
+        this.generateChartLocations(busPositions, res.data[0].codLinea);
+      },
+      error: (err) => {
+        console.error('Error while getting bus locations logs: ', err);
+      },
+    });
+  }
+
+  private generateChartLocations(busPositions: { x: number; y: number }[], lineCode: number) {
+    const canvasBusLocationsLog = document.getElementById(
+      'bus-locations-logs'
+    ) as HTMLCanvasElement;
+    if (!canvasBusLocationsLog) {
+      throw Error('No canvas was found to show bus locations');
+    }
+
+    if (this.busScatterChart) {
+      this.busScatterChart.destroy();
+    }
+
+    this.busScatterChart = new Chart(canvasBusLocationsLog, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: `Bus positions for line ${lineCode}`,
+            data: busPositions,
+            backgroundColor: '#3b82f6',
+            pointRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: `Bus GPS Locations (Lat vs Lon) - Line ${lineCode}`,
+            color: '#1f2937',
+            font: { size: 16, weight: 'bold' },
+          },
+          legend: {
+            labels: { color: '#1f2937' },
+          },
+          datalabels: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Longitude (lon)',
+              color: '#1f2937',
+            },
+            ticks: { color: '#1f2937' },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Latitude (lat)',
+              color: '#1f2937',
+            },
+            ticks: { color: '#1f2937' },
+          },
+        },
+      },
+    });
   }
 }

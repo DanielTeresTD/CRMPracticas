@@ -57,4 +57,23 @@ export class UbicacionesController {
 
     res.json(resp);
   }
+
+  public static async getBusLocationsLog(req: Request, res: Response) {
+    let resp = new GenResponse();
+
+    try {
+      const busId = Number(req.query.busId);
+      resp.data = await UbicacionesService.getBusLocationsLog(busId);
+      resp.code = 200;
+    } catch (error) {
+      if (error instanceof Error) {
+        resp.msg = error.message;
+      } else {
+        resp.msg = String(error);
+      }
+      resp.code = 500;
+    }
+
+    res.json(resp);
+  }
 }

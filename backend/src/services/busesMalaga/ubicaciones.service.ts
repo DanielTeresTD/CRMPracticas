@@ -1,10 +1,13 @@
 import { DeepPartial, Repository } from "typeorm";
 import { DB } from "../../config/typeorm";
 import { Ubicaciones } from "../../entities/busesMalaga/ubicaciones.entity";
+import { UbicacionesLog } from "../../entities/busesMalaga/ubicacionesLog.entity";
 import { fetchBusApiData, storeByChunks } from "./busApi.service";
 
 export class UbicacionesService {
   private static readonly busLocationsRepo = DB.getRepository(Ubicaciones);
+  private static readonly busLocationsLogsRepo =
+    DB.getRepository(UbicacionesLog);
 
   public static async storeLocations(): Promise<DeepPartial<Ubicaciones>[]> {
     const limit = 200;
@@ -33,6 +36,13 @@ export class UbicacionesService {
       constraints,
       chunkSize
     );
+    // Store logs bus locations
+    await storeByChunks(
+      this.busLocationsLogsRepo,
+      locationsParsed,
+      [],
+      chunkSize
+    );
     return locationsParsed;
   }
 
@@ -44,5 +54,11 @@ export class UbicacionesService {
 
   public static async getLocationsBuses(): Promise<Ubicaciones[]> {
     return await this.busLocationsRepo.find();
+  }
+
+  public static async getBusLocationsLog(
+    busId: number
+  ): Promise<UbicacionesLog[]> {
+    return await this.busLocationsLogsRepo.findBy({ codBus: busId });
   }
 }
