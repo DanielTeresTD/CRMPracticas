@@ -3,6 +3,12 @@ import { GenResponse } from "../genResponse";
 import { HorariosService } from "../../services/busesMalaga/horarios.service";
 
 export class HorariosController {
+  /**
+   * Endpoint to store bus schedules from CSV files into the database
+   * Responds with a success message when the process is completed
+   * @param req - Express request object
+   * @param res - Express response object
+   */
   public static async storeBusSchedule(req: Request, res: Response) {
     let resp = new GenResponse();
 
@@ -22,6 +28,11 @@ export class HorariosController {
     res.json(resp);
   }
 
+  /**
+   * Endpoint to get bus stops for a given line ordered by direction and sequence
+   * @param req - Express request object, expects `lineId` as a query parameter
+   * @param res - Express response object
+   */
   public static async getBusStopsOrdered(req: Request, res: Response) {
     let resp = new GenResponse();
 

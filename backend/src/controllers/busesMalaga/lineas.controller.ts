@@ -3,6 +3,10 @@ import { GenResponse } from "../genResponse";
 import { LineasService } from "../../services/busesMalaga/lineas.service";
 
 export class LineasController {
+  /**
+   * fetch and store all bus lines and stops from API
+   * returns a success message on completion
+   */
   public static async storeBusLines(req: Request, res: Response) {
     let resp = new GenResponse();
 
@@ -22,6 +26,9 @@ export class LineasController {
     res.json(resp);
   }
 
+  /**
+   * get all bus lines with their code and name
+   */
   public static async getLinesCodeName(req: Request, res: Response) {
     let resp = new GenResponse();
 
@@ -40,6 +47,10 @@ export class LineasController {
     res.json(resp);
   }
 
+  /**
+   * get all lines that pass through a specific stop
+   * @param stopId - bus stop id (from query)
+   */
   public static async getLinesAtStop(req: Request, res: Response) {
     let resp = new GenResponse();
 

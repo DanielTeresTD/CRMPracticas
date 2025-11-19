@@ -3,6 +3,12 @@ import { GenResponse } from "../genResponse";
 import { ParadasService } from "../../services/busesMalaga/paradas.service";
 
 export class ParadasController {
+  /**
+   * get all bus stops
+   * responds with a general response containing all stops
+   * @param req - express request object
+   * @param res - express response object
+   */
   public static async getBusStops(req: Request, res: Response) {
     let resp = new GenResponse();
 
@@ -21,6 +27,12 @@ export class ParadasController {
     res.json(resp);
   }
 
+  /**
+   * get bus stops by line id
+   * responds with a general response containing stop IDs for a specific line
+   * @param req - express request object (expects query.lineId)
+   * @param res - express response object
+   */
   public static async getBusStopsByLine(req: Request, res: Response) {
     let resp = new GenResponse();
 

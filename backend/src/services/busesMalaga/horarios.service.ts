@@ -13,6 +13,10 @@ export class HorariosService {
   );
   private static readonly scheduleRepo = DB.getRepository(Horarios);
 
+  /**
+   * Reads CSV files and stores bus schedules in the database
+   * It combines stop_times.csv and trips.csv to generate arrival sequences
+   */
   public static async storeBusSchedule(): Promise<void> {
     const stopTimesColumns = [
       "trip_id",
@@ -31,12 +35,12 @@ export class HorariosService {
       tripsDataColumns
     );
 
-    // Join trip id and route id
+    // Join trip_id → route_id
     const tripIdToRouteId = new Map(
       tripsData.map((trip) => [(trip as any).trip_id, (trip as any).route_id])
     );
 
-    // Crear un mapa trip_id → direction_id
+    // Join trip_id → direction_id
     const tripIdToDirectionId = new Map(
       tripsData.map((trip) => [
         (trip as any).trip_id,
@@ -46,7 +50,7 @@ export class HorariosService {
 
     const horariosToInsert: DeepPartial<Horarios>[] = [];
 
-    // Generate time arrivals for each line and bus stop
+    // Generate schedule records
     for (const stop of stopTimesData) {
       const stopAny = stop as any;
       const routeId = tripIdToRouteId.get(stopAny.trip_id);
@@ -72,6 +76,11 @@ export class HorariosService {
     );
   }
 
+  /**
+   * Reads a CSV file and returns an array of objects filtered by specified columns
+   * @param csvPath - full path to the CSV file
+   * @param columnNames - list of column names to include in the result
+   */
   private static async readAndParseCSV(
     csvPath: string,
     columnNames: Array<string>
@@ -82,11 +91,9 @@ export class HorariosService {
         .pipe(csv())
         .on("data", (data: any) => {
           const filteredData: { [key: string]: any } = {};
-
           for (const key of columnNames) {
             filteredData[key] = data[key];
           }
-
           if (Object.keys(filteredData).length > 0) {
             results.push(filteredData);
           }
@@ -100,6 +107,10 @@ export class HorariosService {
     });
   }
 
+  /**
+   * Returns all bus stops for a given line ordered by direction and sequence
+   * @param lineId - bus line ID
+   */
   public static async getOrderedBusStops(
     lineId: number
   ): Promise<DeepPartial<Horarios>[]> {

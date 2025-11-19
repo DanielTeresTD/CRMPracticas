@@ -9,6 +9,10 @@ export class LineasService {
   private static readonly busLinesRepo = DB.getRepository(Lineas);
   private static readonly linesRepo = DB.getRepository(Lineas);
 
+  /**
+   * fetch and store bus lines and their stops from API
+   * stores lines, bus stops, and their relationships in database in chunks
+   */
   public static async storeBusLines(): Promise<void> {
     const limit = 6500;
     const data = await fetchBusApiData(
@@ -18,11 +22,8 @@ export class LineasService {
     );
 
     const rawRecords: any[] = data.result.records;
-    // Create all bus stops from data retrieved
     await ParadasService.addBusStops(rawRecords);
 
-    // Create lines of the data retrieved, it will be stored in array
-    // data structure to pass to typeorm eassly
     const lines = rawRecords
       .filter(
         (actLine) => actLine.codLinea != null && actLine.nombreLinea != null
@@ -33,9 +34,9 @@ export class LineasService {
         cabeceraIda: actLine.cabeceraIda,
         cabeceraVuelta: actLine.cabeceraVuelta,
       }));
+
     const chunkSize = 1024;
     const constraints = ["codLinea"];
-    // Insert all lines in the table using chunks
     await storeByChunks(this.busLinesRepo, lines, constraints, chunkSize);
 
     const relationsBusStops = rawRecords
@@ -46,7 +47,7 @@ export class LineasService {
         codLinea: actLine.codLinea,
         codParada: actLine.codParada,
       }));
-    // Save has property to insert by chunkSizes
+
     constraints.push("codParada");
     await storeByChunks(
       this.linesStopsRepo,
@@ -56,10 +57,19 @@ export class LineasService {
     );
   }
 
+  /**
+   * get all bus lines with code and name
+   * returns array of partial Lineas objects
+   */
   public static async getLinesCodeName(): Promise<Partial<Lineas>[]> {
     return await this.linesRepo.find({ select: ["codLinea", "nombreLinea"] });
   }
 
+  /**
+   * get all lines that pass through a specific stop
+   * @param stopId - bus stop id
+   * @returns array of objects containing line code and name
+   */
   public static async getLinesAtStop(
     stopId: number
   ): Promise<{ codLinea: number; nombreLinea: string }[]> {

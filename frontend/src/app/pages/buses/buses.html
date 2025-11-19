@@ -1,10 +1,33 @@
 <div class="card">
-    <p-select [options]="linesItems" [(ngModel)]="selectedLine" placeholder="Select a bus line" optionLabel="label"
-        [filter]="true" filterBy="label" [showClear]="true" (onChange)="onLineChange($event)" class="w-56 mx-auto" />
+  <!-- Selector to select bus lines -->
+  <p-select
+    [options]="linesItems"
+    [(ngModel)]="selectedLine"
+    placeholder="Select a bus line"
+    optionLabel="label"
+    [filter]="true"
+    filterBy="label"
+    [showClear]="true"
+    (onChange)="onLineChange($event)"
+    class="w-56 mx-auto"
+  />
 
-    <p-select [options]="selectedLine ? stopItemsByLine : stopItems" [(ngModel)]="selectedStop"
-        placeholder="Select a bus stop" optionLabel="label" [filter]="true" filterBy="label" [showClear]="true"
-        class="w-56 mx-auto" />
+  <!-- Selector to select specific bus stops -->
+  <p-select
+    [options]="selectedLine ? stopItemsByLine : stopItems"
+    [(ngModel)]="selectedStop"
+    placeholder="Select a bus stop"
+    optionLabel="label"
+    [filter]="true"
+    filterBy="label"
+    [showClear]="true"
+    class="w-56 mx-auto"
+  />
 </div>
 
-<app-buses-map [line]="selectedLine" [busesStopsOfLine]="stopItemsByLine" [stop]="selectedStop"></app-buses-map>
+<!-- Call to child component to draw map with the info selected -->
+<app-buses-map
+  [line]="selectedLine"
+  [busesStopsOfLine]="stopItemsByLine"
+  [stop]="selectedStop"
+></app-buses-map>

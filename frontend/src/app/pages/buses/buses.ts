@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 
@@ -14,20 +13,30 @@ import { BusesMap } from '../../components/buses-map/buses-map';
   styleUrl: './buses.scss',
 })
 export class Buses implements OnInit {
+  /** list of all bus lines */
   public linesItems: Line[] | undefined;
+
+  /** currently selected bus line */
   public selectedLine: Line | undefined;
 
+  /** list of all bus stops */
   public stopItems: Stop[] | undefined;
+
+  /** bus stops filtered by selected line */
   public stopItemsByLine: Stop[] | undefined;
+
+  /** currently selected stop */
   public selectedStop: Stop | undefined;
 
   constructor(private busesService: BusesService) {}
 
+  /** initialize component: fetch lines and stops */
   public ngOnInit() {
     this.getNameCodeLines();
     this.getBusStops();
   }
 
+  /** fetch all bus lines with name and code */
   private getNameCodeLines(): void {
     this.busesService.getNameCodeLines().subscribe({
       next: (res) => {
@@ -37,11 +46,12 @@ export class Buses implements OnInit {
         }));
       },
       error: (err) => {
-        console.error('An error ocurred while getting name and code of lines: ', err);
+        console.error('An error occurred while getting name and code of lines: ', err);
       },
     });
   }
 
+  /** fetch all bus stops */
   private getBusStops(): void {
     this.busesService.getBusStops().subscribe({
       next: (res) => {
@@ -51,14 +61,18 @@ export class Buses implements OnInit {
         }));
       },
       error: (err) => {
-        console.error('An error ocurred while getting bus stops: ', err);
+        console.error('An error occurred while getting bus stops: ', err);
       },
     });
   }
 
+  /**
+   * handle change when a line is selected. Filters stops by selected line
+   * @param event - event from the select component
+   */
   onLineChange(event: any) {
     if (!event.value) {
-      this.stopItemsByLine = []; // opcional: limpiar el selector de paradas
+      this.stopItemsByLine = [];
       this.selectedStop = undefined;
       return;
     }
@@ -71,7 +85,7 @@ export class Buses implements OnInit {
         );
       },
       error: (err) => {
-        console.error('An error ocurred while getting bus stops by Line: ', err);
+        console.error('An error occurred while getting bus stops by line: ', err);
       },
     });
   }
